@@ -17,6 +17,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -330,7 +331,7 @@ public class ArmorGUI {
      * Uses the tier's base lore and appends purchase information.
      */
     private static List<String> buildArmorPriceLore(ArmorTier tier) {
-        List<String> lore = new java.util.ArrayList<>();
+        List<String> lore = new ArrayList<>();
         
         // Add the tier's base statistics lore
         for (String line : tier.getLore()) {
