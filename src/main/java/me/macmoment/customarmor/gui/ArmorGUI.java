@@ -44,6 +44,7 @@ public class ArmorGUI {
     public static final int SLOT_LEGGINGS = 22;
     public static final int SLOT_BOOTS = 23;
     public static final int SLOT_STATS = 40;
+    public static final int ARMOR_PIECES_PER_SET = 4;
 
     /**
      * Opens the armor GUI for a player at a specific page (tier)
@@ -99,7 +100,7 @@ public class ArmorGUI {
         tierLore.add(TextUtils.colorize(" " + TextUtils.getColor() + "▸ &f+" + armorTier.getMultiplier() + "x &7multiplier per piece"));
         tierLore.add(TextUtils.colorize(" " + TextUtils.getColor() + "▸ &f" + armorTier.getPrice() + " &7essence per piece"));
         tierLore.add("");
-        tierLore.add(TextUtils.colorize("&7Full set bonus: " + TextUtils.getColor() + "+" + String.format("%.2f", armorTier.getMultiplier() * 4) + "x"));
+        tierLore.add(TextUtils.colorize("&7Full set bonus: " + TextUtils.getColor() + "+" + String.format("%.2f", armorTier.getMultiplier() * ARMOR_PIECES_PER_SET) + "x"));
         tierInfoMeta.setLore(tierLore);
         tierInfo.setItemMeta(tierInfoMeta);
         inv.setItem(SLOT_TIER_INFO, tierInfo);
@@ -167,7 +168,7 @@ public class ArmorGUI {
         statsLore.add("");
         statsLore.add(TextUtils.colorize("&7Your armor stats:"));
         statsLore.add(TextUtils.colorize(" " + TextUtils.getColor() + "▸ &fMultiplier: " + TextUtils.getColor() + String.format("%.2f", armorStats) + "x"));
-        statsLore.add(TextUtils.colorize(" " + TextUtils.getColor() + "▸ &fArmor Pieces: " + TextUtils.getColor() + armorAmount + "/4"));
+        statsLore.add(TextUtils.colorize(" " + TextUtils.getColor() + "▸ &fArmor Pieces: " + TextUtils.getColor() + armorAmount + "/" + ARMOR_PIECES_PER_SET));
         statsLore.add("");
         statsLore.add(TextUtils.colorize("&7Your inventory:"));
         statsLore.add(TextUtils.colorize(" " + TextUtils.getColor() + "▸ &fArmor Essence: " + TextUtils.getColor() + playerEssence));
@@ -220,7 +221,7 @@ public class ArmorGUI {
     private static ItemStack createGlassPane(Material material) {
         ItemStack glass = new ItemStack(material);
         ItemMeta meta = glass.getItemMeta();
-        meta.displayName(Component.text(" "));
+        meta.displayName(Component.empty());
         glass.setItemMeta(meta);
         return glass;
     }
