@@ -29,12 +29,13 @@ public class ArmorGUIListener implements Listener {
         Player player = (Player) event.getWhoClicked();
         String title = PlainTextComponentSerializer.plainText().serialize(event.getView().title());
         
-        if (!title.contains(TextUtils.stripColor(TextUtils.fancy("armor browser")))) return;
+        // Check if this is our armor browser GUI
+        if (!title.contains("Armor Browser")) return;
         
         event.setCancelled(true);
         
-        // Extract page number from title
-        Pattern pattern = Pattern.compile("Page (\\d+)");
+        // Extract tier number from title (format: "Armor Browser (Tier X/Y)")
+        Pattern pattern = Pattern.compile("Tier (\\d+)");
         Matcher matcher = pattern.matcher(title);
         
         if (!matcher.find()) return;
@@ -42,23 +43,23 @@ public class ArmorGUIListener implements Listener {
         int page = Integer.parseInt(matcher.group(1));
         int slot = event.getRawSlot();
         
-        // Handle navigation
-        if (slot == 1) {
-            // Previous page
+        // Handle navigation using constants from ArmorGUI
+        if (slot == ArmorGUI.SLOT_PREV) {
+            // Previous tier
             ArmorGUI.openGUI(player, page - 1);
-        } else if (slot == 6) {
-            // Next page
+        } else if (slot == ArmorGUI.SLOT_NEXT) {
+            // Next tier
             ArmorGUI.openGUI(player, page + 1);
-        } else if (slot == 2) {
+        } else if (slot == ArmorGUI.SLOT_HELMET) {
             // Helmet
             handleArmorPurchase(player, page, "head");
-        } else if (slot == 3) {
+        } else if (slot == ArmorGUI.SLOT_CHESTPLATE) {
             // Chestplate
             handleArmorPurchase(player, page, "chestplate");
-        } else if (slot == 4) {
+        } else if (slot == ArmorGUI.SLOT_LEGGINGS) {
             // Leggings
             handleArmorPurchase(player, page, "leggings");
-        } else if (slot == 5) {
+        } else if (slot == ArmorGUI.SLOT_BOOTS) {
             // Boots
             handleArmorPurchase(player, page, "boots");
         }

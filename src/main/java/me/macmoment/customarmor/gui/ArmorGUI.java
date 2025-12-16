@@ -28,12 +28,29 @@ import java.util.stream.Collectors;
  */
 public class ArmorGUI {
 
+    // GUI Layout (45 slots - 5 rows):
+    // Row 1 (0-8):   Border
+    // Row 2 (9-17):  [border] [prev] [border] [tier info] [border] [border] [border] [next] [border]
+    // Row 3 (18-26): [border] [border] [helmet] [chestplate] [leggings] [boots] [border] [border] [border]
+    // Row 4 (27-35): [border] [border] [border] [border] [border] [border] [border] [border] [border]
+    // Row 5 (36-44): [border] [border] [border] [border] [stats] [border] [border] [border] [border]
+    
+    public static final int GUI_SIZE = 45;
+    public static final int SLOT_PREV = 10;
+    public static final int SLOT_NEXT = 16;
+    public static final int SLOT_TIER_INFO = 12;
+    public static final int SLOT_HELMET = 20;
+    public static final int SLOT_CHESTPLATE = 21;
+    public static final int SLOT_LEGGINGS = 22;
+    public static final int SLOT_BOOTS = 23;
+    public static final int SLOT_STATS = 40;
+
     /**
      * Opens the armor GUI for a player at a specific page (tier)
      * Maps to armorGUI function from Skript
      */
     public static void openGUI(Player player, int page) {
-        int totalArmorSets = 10;
+        int totalArmorSets = CustomArmor.getInstance().getArmorRegistry().getMaxTier();
         
         if (page < 1) page = 1;
         if (page > totalArmorSets) page = totalArmorSets;
@@ -43,26 +60,51 @@ public class ArmorGUI {
         
         if (armorTier == null) return;
         
-        // Create inventory
-        String title = TextUtils.colorize("&8" + TextUtils.fancy("armor browser") + " &7(Page " + page + ")");
-        Inventory inv = Bukkit.createInventory(null, 9, title);
+        // Create inventory with larger size
+        String title = TextUtils.colorize("&8" + TextUtils.fancy("Armor Browser") + " &7(Tier " + page + "/" + totalArmorSets + ")");
+        Inventory inv = Bukkit.createInventory(null, GUI_SIZE, title);
         
-        // Orange stained glass panes at slots 0 and 7
-        ItemStack glass = new ItemStack(Material.ORANGE_STAINED_GLASS_PANE);
-        ItemMeta glassMeta = glass.getItemMeta();
-        glassMeta.displayName(Component.text("§7"));
-        glass.setItemMeta(glassMeta);
-        inv.setItem(0, glass);
-        inv.setItem(7, glass);
+        // Fill border with glass panes
+        ItemStack orangeGlass = createGlassPane(Material.ORANGE_STAINED_GLASS_PANE);
+        ItemStack grayGlass = createGlassPane(Material.GRAY_STAINED_GLASS_PANE);
+        
+        // Fill all slots with gray glass first (border)
+        for (int i = 0; i < GUI_SIZE; i++) {
+            inv.setItem(i, grayGlass);
+        }
+        
+        // Add orange accents in corners and key positions
+        inv.setItem(0, orangeGlass);
+        inv.setItem(8, orangeGlass);
+        inv.setItem(36, orangeGlass);
+        inv.setItem(44, orangeGlass);
+        inv.setItem(4, orangeGlass);  // Top center accent
         
         // Create armor pieces with lore including price
         List<String> priceLore = new ArrayList<>(armorTier.getLore());
         priceLore.add("");
-        priceLore.add(TextUtils.colorize("&f" + TextUtils.fancy("price") + ": " + TextUtils.getColor() + armorTier.getPrice() + "x Armor Essence"));
+        priceLore.add(TextUtils.colorize("&fPrice: " + TextUtils.getColor() + armorTier.getPrice() + "x &fArmor Essence"));
         priceLore.add("");
-        priceLore.add(TextUtils.colorize("&7" + TextUtils.fancy("Click to buy or upgrade!")));
+        priceLore.add(TextUtils.colorize("&e▶ Click to buy or upgrade!"));
         
-        // Helmet (slot 2)
+        // Tier info item (shows current tier details)
+        ItemStack tierInfo = new ItemStack(Material.BOOK);
+        ItemMeta tierInfoMeta = tierInfo.getItemMeta();
+        tierInfoMeta.displayName(Component.text(
+            TextUtils.colorize(armorTier.getHexColor() + "⚔ " + armorTier.getName() + " &7(Tier " + tier + ")")
+        ));
+        List<String> tierLore = new ArrayList<>();
+        tierLore.add("");
+        tierLore.add(TextUtils.colorize("&7This tier provides:"));
+        tierLore.add(TextUtils.colorize(" " + TextUtils.getColor() + "▸ &f+" + armorTier.getMultiplier() + "x &7multiplier per piece"));
+        tierLore.add(TextUtils.colorize(" " + TextUtils.getColor() + "▸ &f" + armorTier.getPrice() + " &7essence per piece"));
+        tierLore.add("");
+        tierLore.add(TextUtils.colorize("&7Full set bonus: " + TextUtils.getColor() + "+" + String.format("%.2f", armorTier.getMultiplier() * 4) + "x"));
+        tierInfoMeta.setLore(tierLore);
+        tierInfo.setItemMeta(tierInfoMeta);
+        inv.setItem(SLOT_TIER_INFO, tierInfo);
+        
+        // Helmet
         ItemStack helmet = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta helmetMeta = (SkullMeta) helmet.getItemMeta();
         PlayerProfile profile = Bukkit.createProfile(UUID.randomUUID());
@@ -73,9 +115,9 @@ public class ArmorGUI {
         ));
         helmetMeta.setLore(priceLore.stream().map(TextUtils::colorize).collect(Collectors.toList()));
         helmet.setItemMeta(helmetMeta);
-        inv.setItem(2, helmet);
+        inv.setItem(SLOT_HELMET, helmet);
         
-        // Chestplate (slot 3)
+        // Chestplate
         ItemStack chestplate = new ItemStack(Material.LEATHER_CHESTPLATE);
         LeatherArmorMeta chestMeta = (LeatherArmorMeta) chestplate.getItemMeta();
         chestMeta.setColor(armorTier.getRgbColor());
@@ -84,9 +126,9 @@ public class ArmorGUI {
         ));
         chestMeta.setLore(priceLore.stream().map(TextUtils::colorize).collect(Collectors.toList()));
         chestplate.setItemMeta(chestMeta);
-        inv.setItem(3, chestplate);
+        inv.setItem(SLOT_CHESTPLATE, chestplate);
         
-        // Leggings (slot 4)
+        // Leggings
         ItemStack leggings = new ItemStack(Material.LEATHER_LEGGINGS);
         LeatherArmorMeta leggingsMeta = (LeatherArmorMeta) leggings.getItemMeta();
         leggingsMeta.setColor(armorTier.getRgbColor());
@@ -95,9 +137,9 @@ public class ArmorGUI {
         ));
         leggingsMeta.setLore(priceLore.stream().map(TextUtils::colorize).collect(Collectors.toList()));
         leggings.setItemMeta(leggingsMeta);
-        inv.setItem(4, leggings);
+        inv.setItem(SLOT_LEGGINGS, leggings);
         
-        // Boots (slot 5)
+        // Boots
         ItemStack boots = new ItemStack(Material.LEATHER_BOOTS);
         LeatherArmorMeta bootsMeta = (LeatherArmorMeta) boots.getItemMeta();
         bootsMeta.setColor(armorTier.getRgbColor());
@@ -106,54 +148,80 @@ public class ArmorGUI {
         ));
         bootsMeta.setLore(priceLore.stream().map(TextUtils::colorize).collect(Collectors.toList()));
         boots.setItemMeta(bootsMeta);
-        inv.setItem(5, boots);
+        inv.setItem(SLOT_BOOTS, boots);
         
-        // Player stats (slot 8)
+        // Player stats
         ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
         skullMeta.setOwningPlayer(player);
         
-        String tempName = TextUtils.fancy(player.getName() + "'s stats");
         int playerEssence = EssenceUtils.getPlayerEssence(player);
         double armorStats = ArmorUtils.getArmorStats(player);
         int armorAmount = ArmorUtils.getArmorAmount(player);
         
         skullMeta.displayName(Component.text(
-            TextUtils.colorize(TextUtils.getColor() + tempName)
+            TextUtils.colorize(TextUtils.getColor() + "⚡ " + player.getName() + "'s Stats")
         ));
         
         List<String> statsLore = new ArrayList<>();
-        statsLore.add(TextUtils.colorize(" " + TextUtils.getColor() + "&l| &f" + TextUtils.fancy("Multiplier:") + " " + TextUtils.getColor() + armorStats + "x"));
-        statsLore.add(TextUtils.colorize(" " + TextUtils.getColor() + "&l| &f" + TextUtils.fancy("armor pieces:") + " " + TextUtils.getColor() + armorAmount));
         statsLore.add("");
-        statsLore.add(TextUtils.colorize(TextUtils.getColor() + TextUtils.fancy("inventory:")));
-        statsLore.add(TextUtils.colorize(" " + TextUtils.getColor() + "&l| &f" + TextUtils.fancy("Armor Essence:") + " " + TextUtils.getColor() + playerEssence));
+        statsLore.add(TextUtils.colorize("&7Your armor stats:"));
+        statsLore.add(TextUtils.colorize(" " + TextUtils.getColor() + "▸ &fMultiplier: " + TextUtils.getColor() + String.format("%.2f", armorStats) + "x"));
+        statsLore.add(TextUtils.colorize(" " + TextUtils.getColor() + "▸ &fArmor Pieces: " + TextUtils.getColor() + armorAmount + "/4"));
+        statsLore.add("");
+        statsLore.add(TextUtils.colorize("&7Your inventory:"));
+        statsLore.add(TextUtils.colorize(" " + TextUtils.getColor() + "▸ &fArmor Essence: " + TextUtils.getColor() + playerEssence));
         skullMeta.setLore(statsLore);
         
         skull.setItemMeta(skullMeta);
-        inv.setItem(8, skull);
+        inv.setItem(SLOT_STATS, skull);
         
         // Navigation arrows
         if (page > 1) {
             ItemStack prevArrow = new ItemStack(Material.ARROW);
             ItemMeta prevMeta = prevArrow.getItemMeta();
             prevMeta.displayName(Component.text(
-                TextUtils.colorize("&c" + TextUtils.fancy("Previous Page"))
+                TextUtils.colorize("&c◀ Previous Tier")
             ));
+            List<String> prevLore = new ArrayList<>();
+            prevLore.add("");
+            ArmorTier prevTier = CustomArmor.getInstance().getArmorRegistry().getTier(page - 1);
+            if (prevTier != null) {
+                prevLore.add(TextUtils.colorize("&7Go to: " + prevTier.getHexColor() + prevTier.getName()));
+            }
+            prevMeta.setLore(prevLore);
             prevArrow.setItemMeta(prevMeta);
-            inv.setItem(1, prevArrow);
+            inv.setItem(SLOT_PREV, prevArrow);
         }
         
         if (page < totalArmorSets) {
             ItemStack nextArrow = new ItemStack(Material.ARROW);
             ItemMeta nextMeta = nextArrow.getItemMeta();
             nextMeta.displayName(Component.text(
-                TextUtils.colorize("&a" + TextUtils.fancy("Next Page"))
+                TextUtils.colorize("&a▶ Next Tier")
             ));
+            List<String> nextLore = new ArrayList<>();
+            nextLore.add("");
+            ArmorTier nextTier = CustomArmor.getInstance().getArmorRegistry().getTier(page + 1);
+            if (nextTier != null) {
+                nextLore.add(TextUtils.colorize("&7Go to: " + nextTier.getHexColor() + nextTier.getName()));
+            }
+            nextMeta.setLore(nextLore);
             nextArrow.setItemMeta(nextMeta);
-            inv.setItem(6, nextArrow);
+            inv.setItem(SLOT_NEXT, nextArrow);
         }
         
         player.openInventory(inv);
+    }
+    
+    /**
+     * Creates a glass pane item with no name
+     */
+    private static ItemStack createGlassPane(Material material) {
+        ItemStack glass = new ItemStack(material);
+        ItemMeta meta = glass.getItemMeta();
+        meta.displayName(Component.text(" "));
+        glass.setItemMeta(meta);
+        return glass;
     }
 }
