@@ -28,22 +28,23 @@ import java.util.stream.Collectors;
  */
 public class ArmorGUI {
 
-    // GUI Layout (45 slots - 5 rows):
-    // Row 1 (0-8):   Border
-    // Row 2 (9-17):  [border] [prev] [border] [tier info] [border] [border] [border] [next] [border]
-    // Row 3 (18-26): [border] [border] [helmet] [chestplate] [leggings] [boots] [border] [border] [border]
-    // Row 4 (27-35): [border] [border] [border] [border] [border] [border] [border] [border] [border]
-    // Row 5 (36-44): [border] [border] [border] [border] [stats] [border] [border] [border] [border]
+    // GUI Layout (54 slots - 6 rows):
+    // Row 1 (0-8):   Border with accents
+    // Row 2 (9-17):  [border] [prev] [border] [border] [tier info] [border] [border] [next] [border]
+    // Row 3 (18-26): [border] [border] [border] [border] [border] [border] [border] [border] [border]
+    // Row 4 (27-35): [border] [border] [helmet] [chestplate] [leggings] [boots] [border] [border] [border]
+    // Row 5 (36-44): [border] [border] [border] [border] [border] [border] [border] [border] [border]
+    // Row 6 (45-53): [border] [border] [border] [border] [stats] [border] [border] [border] [border]
     
-    public static final int GUI_SIZE = 45;
+    public static final int GUI_SIZE = 54;
     public static final int SLOT_PREV = 10;
     public static final int SLOT_NEXT = 16;
-    public static final int SLOT_TIER_INFO = 12;
-    public static final int SLOT_HELMET = 20;
-    public static final int SLOT_CHESTPLATE = 21;
-    public static final int SLOT_LEGGINGS = 22;
-    public static final int SLOT_BOOTS = 23;
-    public static final int SLOT_STATS = 40;
+    public static final int SLOT_TIER_INFO = 13;
+    public static final int SLOT_HELMET = 29;
+    public static final int SLOT_CHESTPLATE = 30;
+    public static final int SLOT_LEGGINGS = 32;
+    public static final int SLOT_BOOTS = 33;
+    public static final int SLOT_STATS = 49;
     public static final int ARMOR_PIECES_PER_SET = 4;
 
     /**
@@ -77,9 +78,10 @@ public class ArmorGUI {
         // Add orange accents in corners and key positions
         inv.setItem(0, orangeGlass);
         inv.setItem(8, orangeGlass);
-        inv.setItem(36, orangeGlass);
-        inv.setItem(44, orangeGlass);
+        inv.setItem(45, orangeGlass);
+        inv.setItem(53, orangeGlass);
         inv.setItem(4, orangeGlass);  // Top center accent
+        inv.setItem(31, orangeGlass); // Center accent between armor pieces
         
         // Create armor pieces with lore including price
         List<String> priceLore = new ArrayList<>(armorTier.getLore());
