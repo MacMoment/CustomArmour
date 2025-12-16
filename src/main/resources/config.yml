@@ -1,0 +1,131 @@
+# CustomArmor Configuration
+# Converted from Skript - All settings preserved
+
+# Prefix and color scheme
+prefix: '&8[<##FF9100>&lA<##FFB047>&lR<##FFCE8D>&lM<##FFB047>&lO<##FF9100>&lR&8] &8»&7'
+accent-color: '<##FFCE8D>'
+
+# Upgrade system settings
+upgrade-settings:
+  # Discount per tier when upgrading (15 essence per tier owned)
+  discount-per-tier: 15
+  # Minimum price after discount calculation
+  minimum-price: 10
+
+# Armor tier configurations
+# You can edit names, colors, multipliers, and prices here
+armor-tiers:
+  1:
+    name: 'Novice Guard'
+    rgb-color: '150,150,150'
+    hex-color: '<##969696>'
+    multiplier: 0.05
+    price: 25
+    head-texture: 'eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzI3YTFkZjI5ZDI2ZDQ5NGY2ZTE2YzQ0ZDI3YWM4YTg2ZmU5YTIxN2FkMTEzMzFkYTY4MzM4NzM3YjZiZDYifX19'
+  2:
+    name: 'Divine Cloth'
+    rgb-color: '66,135,245'
+    hex-color: '<##4287f5>'
+    multiplier: 0.10
+    price: 50
+    head-texture: 'eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzI3YTFkZjI5ZDI2ZDQ5NGY2ZTE2YzQ0ZDI3YWM4YTg2ZmU5YTIxN2FkMTEzMzFkYTY4MzM4NzM3YjZiZDYifX19'
+  3:
+    name: 'Blessed Hide'
+    rgb-color: '120,180,40'
+    hex-color: '<##78B428>'
+    multiplier: 0.20
+    price: 100
+    head-texture: 'eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNjBlNDhmZTI4ZTE2NDkzNTVmYjM4MzMzMzM1Y2JiN2ViN2M5ZDY5NzY0MGI3MGE3ZDEzODU2NGNiMzVkZmQwZiJ9fX0='
+  4:
+    name: 'Emberwrap'
+    rgb-color: '200,80,10'
+    hex-color: '<##C8500A>'
+    multiplier: 0.35
+    price: 200
+    head-texture: 'eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNGNiNmRlNGI0YmZhMTI2MmU0OGVjMjZjZTUxMGQ1M2Y1NDJiZGM3OWJmYWIyN2ZkNTFlMmZhNTExM2FkZTJkMiJ9fX0='
+  5:
+    name: 'Frostguard'
+    rgb-color: '80,180,255'
+    hex-color: '<##50B4FF>'
+    multiplier: 0.50
+    price: 350
+    head-texture: 'eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDU2ZTE5M2RlOWU5MzRiYmFlMDQ3ZmUwNGVlYzlhOWVmY2NkZjdhYmQ4YjY2MDQ2MWVlYmM0MTEwZmNkMmJiNiJ9fX0='
+  6:
+    name: 'Shadowsteel'
+    rgb-color: '40,40,60'
+    hex-color: '<##28283C>'
+    multiplier: 0.75
+    price: 500
+    head-texture: 'eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDU1YzMzOTAyNDkyNjlkMWFjMWE2MzIwOWVkMzViNzFjNjY4MzBmYmMzNGI4NzIwNGJkY2VkZDQ2MTVlIn19fQ=='
+  7:
+    name: 'Celestial Silk'
+    rgb-color: '220,200,255'
+    hex-color: '<##DCC8FF>'
+    multiplier: 1.00
+    price: 750
+    head-texture: 'eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNjJiY2EwODU3NTAwNDM1MDNmNWRmOWY3ZGVmODI0YTJlM2FjZmMyNzg0MmJjZDA5ZDJiNjY5NTg4MWU4MzJmNSJ9fX0='
+  8:
+    name: 'Voidwalker'
+    rgb-color: '100,0,150'
+    hex-color: '<##640096>'
+    multiplier: 1.35
+    price: 1000
+    head-texture: 'eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzI3YTFkZjI5ZDI2ZDQ5NGY2ZTE2YzQ0ZDI3YWM4YTg2ZmU5YTIxN2FkMTEzMzFkYTY4MzM4NzM3YjZiZDYifX19'
+  9:
+    name: 'Dragonscale'
+    rgb-color: '255,50,50'
+    hex-color: '<##FF3232>'
+    multiplier: 1.75
+    price: 1500
+    head-texture: 'eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNjBlNDhmZTI4ZTE2NDkzNTVmYjM4MzMzMzM1Y2JiN2ViN2M5ZDY5NzY0MGI3MGE3ZDEzODU2NGNiMzVkZmQwZiJ9fX0='
+  10:
+    name: 'Eternal Radiance'
+    rgb-color: '255,215,0'
+    hex-color: '<##FFD700>'
+    multiplier: 2.50
+    price: 2500
+    head-texture: 'eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNGNiNmRlNGI0YmZhMTI2MmU0OGVjMjZjZTUxMGQ1M2Y1NDJiZGM3OWJmYWIyN2ZkNTFlMmZhNTExM2FkZTJkMiJ9fX0='
+
+# Messages
+messages:
+  # Admin command messages
+  admin:
+    choose-tier: '&cChoose a tier!'
+    choose-type: '&cChoose an type!'
+    choose-player: '&cChoose a player!'
+    choose-amount: '&cChoose an amount!'
+    reload: '&aConfiguration reloaded!'
+  
+  # Essence messages
+  essence:
+    count: '&7You have {accent}{amount}x Armor Essence&7!'
+    none: '&cYou don''t have any Armor Essence!'
+  
+  # Purchase/upgrade messages
+  shop:
+    already-owned: '&cYou already have this tier or higher!'
+    purchased: '&aYou bought {part} from tier {tier} for {accent}{price}x Armor Essence&7!'
+    upgraded: '&aYou upgraded your {part} to tier {tier} for {accent}{price}x Armor Essence &7(&a-{discount} discount&7)!'
+    need-essence: '&cYou need {accent}{price}x Armor Essence &cto buy this!'
+    need-essence-upgrade: '&cYou need {accent}{price}x Armor Essence &c(&a-{discount} upgrade discount&c)!'
+
+# GUI Settings
+gui:
+  title: '&8armor browser &7(Page {page})'
+  stats-item-name: '{accent}{player}''s stats'
+  stats-lore:
+    - ' {accent}&l| &fMultiplier: {accent}{multiplier}x'
+    - ' {accent}&l| &farmor pieces: {accent}{amount}'
+    - ''
+    - '{accent}inventory:'
+    - ' {accent}&l| &fArmor Essence: {accent}{essence}'
+  
+  armor-lore-addition:
+    - ''
+    - '&fprice: {accent}{price}x Armor Essence'
+    - ''
+    - '&7Click to buy or upgrade!'
+  
+  navigation:
+    previous: '&cPrevious Page'
+    next: '&aNext Page'

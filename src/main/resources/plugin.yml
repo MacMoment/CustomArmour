@@ -1,0 +1,48 @@
+name: CustomArmor
+version: 1.0.0
+main: me.macmoment.customarmor.CustomArmor
+api-version: 1.16
+author: macmoment
+description: A custom armor cosmetic system with tiered upgrades and essence currency
+
+commands:
+  armoradmin:
+    description: Admin commands for CustomArmor
+    usage: /armoradmin <reload|give|setessence|addessence>
+    permission: customarmor.admin
+    aliases: [ca, carmor]
+  
+  armor:
+    description: Open the armor shop GUI
+    usage: /armor
+    aliases: [armors, ashop]
+  
+  essence:
+    description: Check your essence balance
+    usage: /essence [player]
+    aliases: [ess, essences]
+
+permissions:
+  customarmor.admin:
+    description: Access to all admin commands
+    default: op
+  
+  customarmor.reload:
+    description: Reload the plugin configuration
+    default: op
+  
+  customarmor.give:
+    description: Give armor pieces to players
+    default: op
+  
+  customarmor.essence:
+    description: Manage player essence
+    default: op
+  
+  customarmor.shop:
+    description: Access the armor shop
+    default: true
+  
+  customarmor.use:
+    description: Use custom armor pieces
+    default: true
