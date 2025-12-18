@@ -84,10 +84,11 @@ public class ArmorGUI {
         String title = config.getGUITitle()
             .replace("{tier}", String.valueOf(currentPage))
             .replace("{max_tier}", String.valueOf(maxPages));
-        title = TextUtils.colorize(title);
         
         int guiSize = config.getGUISize();
-        Inventory inventory = Bukkit.createInventory(null, guiSize, title);
+        // Use Adventure Component for proper color support in modern Paper
+        Component titleComponent = TextUtils.colorizeToComponent(title);
+        Inventory inventory = Bukkit.createInventory(null, guiSize, titleComponent);
 
         fillWithBorder(inventory, guiSize, config);
         addAccentDecorations(inventory, config);
@@ -166,7 +167,7 @@ public class ArmorGUI {
             .replace("{hex_color}", tier.getHexColor())
             .replace("{tier_name}", tier.getName())
             .replace("{tier}", String.valueOf(tier.getTier()));
-        meta.displayName(Component.text(TextUtils.colorize(displayName)));
+        meta.displayName(TextUtils.colorizeToComponent(displayName));
 
         List<String> lore = new ArrayList<>();
         for (String line : config.getTierInfoLore()) {
@@ -204,7 +205,7 @@ public class ArmorGUI {
             .replace("{hex_color}", tier.getHexColor())
             .replace("{tier_name}", tier.getName())
             .replace("{piece_name}", "Helmet");
-        meta.displayName(Component.text(TextUtils.colorize(displayName)));
+        meta.displayName(TextUtils.colorizeToComponent(displayName));
         meta.setLore(lore);
 
         helmet.setItemMeta(meta);
@@ -228,7 +229,7 @@ public class ArmorGUI {
             .replace("{hex_color}", tier.getHexColor())
             .replace("{tier_name}", tier.getName())
             .replace("{piece_name}", pieceName);
-        meta.displayName(Component.text(TextUtils.colorize(displayName)));
+        meta.displayName(TextUtils.colorizeToComponent(displayName));
         meta.setLore(lore);
 
         armorPiece.setItemMeta(meta);
@@ -255,7 +256,7 @@ public class ArmorGUI {
         String displayName = config.getPlayerStatsName()
             .replace("{accent}", accentColor)
             .replace("{player}", player.getName());
-        meta.displayName(Component.text(TextUtils.colorize(displayName)));
+        meta.displayName(TextUtils.colorizeToComponent(displayName));
 
         List<String> lore = new ArrayList<>();
         for (String line : config.getPlayerStatsLore()) {
@@ -301,7 +302,7 @@ public class ArmorGUI {
         }
 
         String displayName = isNext ? config.getNavigationNextName() : config.getNavigationPreviousName();
-        meta.displayName(Component.text(TextUtils.colorize(displayName)));
+        meta.displayName(TextUtils.colorizeToComponent(displayName));
 
         ArmorTier targetTier = CustomArmor.getInstance().getArmorRegistry().getTier(targetPage);
         if (targetTier != null) {

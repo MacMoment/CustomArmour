@@ -14,7 +14,6 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.NamespacedKey;
-import net.kyori.adventure.text.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,7 +71,7 @@ public class ArmorUtils {
                     .replace("{hex_color}", tier.getHexColor())
                     .replace("{tier_name}", tier.getName())
                     .replace("{piece_name}", partName);
-                skullMeta.displayName(Component.text(TextUtils.colorize(skullDisplayName)));
+                skullMeta.displayName(TextUtils.colorizeToComponent(skullDisplayName));
                 
                 // Set custom data
                 skullMeta.getPersistentDataContainer().set(ARMOR_PIECE_KEY, PersistentDataType.BYTE, (byte) 1);
@@ -139,7 +138,7 @@ public class ArmorUtils {
             .replace("{hex_color}", tier.getHexColor())
             .replace("{tier_name}", tier.getName())
             .replace("{piece_name}", partName);
-        meta.displayName(Component.text(TextUtils.colorize(displayName)));
+        meta.displayName(TextUtils.colorizeToComponent(displayName));
         
         // Set custom data
         meta.getPersistentDataContainer().set(ARMOR_PIECE_KEY, PersistentDataType.BYTE, (byte) 1);

@@ -12,6 +12,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.regex.Matcher;
@@ -23,6 +24,13 @@ import java.util.regex.Pattern;
  */
 public class ArmorGUIListener implements Listener {
 
+    /**
+     * Checks if the inventory view title matches our armor browser GUI
+     */
+    private boolean isArmorBrowserGUI(String title) {
+        return title.contains("Armor Browser");
+    }
+
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player)) return;
@@ -31,9 +39,20 @@ public class ArmorGUIListener implements Listener {
         String title = PlainTextComponentSerializer.plainText().serialize(event.getView().title());
         
         // Check if this is our armor browser GUI
-        if (!title.contains("Armor Browser")) return;
+        if (!isArmorBrowserGUI(title)) return;
         
+        // Cancel all clicks in the armor browser GUI to prevent item taking
         event.setCancelled(true);
+        
+        // Only process clicks in the top inventory (the GUI itself)
+        // getRawSlot() returns the raw slot index. For a 54-slot chest, slots 0-53 are the top inventory.
+        int slot = event.getRawSlot();
+        int guiSize = CustomArmor.getInstance().getConfigManager().getGUISize();
+        
+        // If clicked outside the GUI (negative slot) or in player inventory, just cancel and return
+        if (slot < 0 || slot >= guiSize) {
+            return;
+        }
         
         // Extract tier number from title (format: "Armor Browser (Tier X/Y)")
         Pattern pattern = Pattern.compile("Tier (\\d+)");
@@ -42,7 +61,6 @@ public class ArmorGUIListener implements Listener {
         if (!matcher.find()) return;
         
         int page = Integer.parseInt(matcher.group(1));
-        int slot = event.getRawSlot();
         
         // Get slot positions from config
         ConfigManager config = CustomArmor.getInstance().getConfigManager();
@@ -66,6 +84,30 @@ public class ArmorGUIListener implements Listener {
         } else if (slot == config.getSlotBoots()) {
             // Boots
             handleArmorPurchase(player, page, "boots");
+        }
+    }
+
+    /**
+     * Prevents dragging items in the armor browser GUI
+     */
+    @EventHandler
+    public void onInventoryDrag(InventoryDragEvent event) {
+        if (!(event.getWhoClicked() instanceof Player)) return;
+        
+        String title = PlainTextComponentSerializer.plainText().serialize(event.getView().title());
+        
+        // Check if this is our armor browser GUI
+        if (!isArmorBrowserGUI(title)) return;
+        
+        // Cancel all drag events in the armor browser GUI
+        int guiSize = CustomArmor.getInstance().getConfigManager().getGUISize();
+        
+        // If any of the dragged slots are in the top inventory, cancel the event
+        for (int slot : event.getRawSlots()) {
+            if (slot >= 0 && slot < guiSize) {
+                event.setCancelled(true);
+                return;
+            }
         }
     }
 
