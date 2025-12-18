@@ -17,7 +17,7 @@ public class TextUtils {
 
     /**
      * Pattern to detect MiniMessage formatting tags that should trigger MiniMessage parsing.
-     * Matches: &lt;gradient:, &lt;rainbow, &lt;color:
+     * Matches: <gradient:, <rainbow, <color:
      */
     private static final Pattern MINIMESSAGE_PATTERN = Pattern.compile("<(gradient:|rainbow|color:)");
 
@@ -60,7 +60,7 @@ public class TextUtils {
 
     /**
      * Checks if the text contains MiniMessage formatting tags that require MiniMessage parsing.
-     * Detects: &lt;gradient:, &lt;rainbow, &lt;color:
+     * Detects: {@code <gradient:}, {@code <rainbow}, {@code <color:}
      * 
      * @param text The text to check
      * @return true if text contains MiniMessage formatting tags
@@ -72,7 +72,7 @@ public class TextUtils {
 
     /**
      * Smart text parsing method that automatically detects and uses the appropriate parser.
-     * If text contains MiniMessage tags (&lt;gradient:, &lt;rainbow, &lt;color:), uses MiniMessage parser.
+     * If text contains MiniMessage tags ({@code <gradient:}, {@code <rainbow}, {@code <color:}), uses MiniMessage parser.
      * Otherwise, uses legacy color code parsing.
      * Always disables default italic formatting on the returned Component.
      * 
