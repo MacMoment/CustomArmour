@@ -135,9 +135,8 @@ public class ArmorAdminCommand implements CommandExecutor, TabCompleter {
 
     private void handleReload(CommandSender sender) {
         sender.sendMessage(TextUtils.colorize(TextUtils.getPrefix() + " &aReloading plugin..."));
-        // Reload config and armor registry
-        CustomArmor.getInstance().getConfigManager().reloadConfig();
-        CustomArmor.getInstance().getArmorRegistry().registerAllArmors();
+        // Use the plugin's reload method which properly clears and re-registers
+        CustomArmor.getInstance().reloadPlugin();
         sender.sendMessage(TextUtils.colorize(TextUtils.getPrefix() + " " + 
             CustomArmor.getInstance().getConfigManager().getAdminMessage("reload")));
     }

@@ -2,8 +2,11 @@ package me.macmoment.customarmor.config;
 
 import me.macmoment.customarmor.CustomArmor;
 import org.bukkit.Color;
+import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+
+import java.util.List;
 
 /**
  * Manages plugin configuration
@@ -98,21 +101,139 @@ public class ConfigManager {
         return getMessage("shop." + key);
     }
 
-    // GUI settings
+    // ==================== GUI Settings ====================
+
+    public int getGUISize() {
+        return config.getInt("gui.size", 54);
+    }
+
     public String getGUITitle() {
-        return config.getString("gui.title", "&8armor browser &7(Page {page})");
+        return config.getString("gui.title", "&8Armor Browser &7(Tier {tier}/{max_tier})");
     }
 
-    public String getStatsItemName() {
-        return config.getString("gui.stats-item-name", "{accent}{player}'s stats");
+    // GUI Slot positions
+    public int getSlotPrevious() {
+        return config.getInt("gui.slots.previous-button", 10);
     }
 
-    public String getNavigationPrevious() {
-        return config.getString("gui.navigation.previous", "&cPrevious Page");
+    public int getSlotNext() {
+        return config.getInt("gui.slots.next-button", 16);
     }
 
-    public String getNavigationNext() {
-        return config.getString("gui.navigation.next", "&aNext Page");
+    public int getSlotTierInfo() {
+        return config.getInt("gui.slots.tier-info", 13);
+    }
+
+    public int getSlotHelmet() {
+        return config.getInt("gui.slots.helmet", 29);
+    }
+
+    public int getSlotChestplate() {
+        return config.getInt("gui.slots.chestplate", 30);
+    }
+
+    public int getSlotLeggings() {
+        return config.getInt("gui.slots.leggings", 32);
+    }
+
+    public int getSlotBoots() {
+        return config.getInt("gui.slots.boots", 33);
+    }
+
+    public int getSlotPlayerStats() {
+        return config.getInt("gui.slots.player-stats", 49);
+    }
+
+    public List<Integer> getAccentSlots() {
+        return config.getIntegerList("gui.accent-slots");
+    }
+
+    // GUI Materials
+    public Material getBorderPaneMaterial() {
+        return parseMaterial(config.getString("gui.materials.border-pane", "GRAY_STAINED_GLASS_PANE"), 
+                            Material.GRAY_STAINED_GLASS_PANE);
+    }
+
+    public Material getAccentPaneMaterial() {
+        return parseMaterial(config.getString("gui.materials.accent-pane", "ORANGE_STAINED_GLASS_PANE"), 
+                            Material.ORANGE_STAINED_GLASS_PANE);
+    }
+
+    public Material getTierInfoMaterial() {
+        return parseMaterial(config.getString("gui.materials.tier-info-item", "BOOK"), 
+                            Material.BOOK);
+    }
+
+    public Material getNavigationArrowMaterial() {
+        return parseMaterial(config.getString("gui.materials.navigation-arrow", "ARROW"), 
+                            Material.ARROW);
+    }
+
+    /**
+     * Parses a material name from config, returning a default if invalid.
+     */
+    private Material parseMaterial(String materialName, Material defaultMaterial) {
+        if (materialName == null || materialName.isEmpty()) {
+            return defaultMaterial;
+        }
+        try {
+            return Material.valueOf(materialName.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return defaultMaterial;
+        }
+    }
+
+    // Tier info settings
+    public String getTierInfoName() {
+        return config.getString("gui.tier-info.name", "{hex_color}⚔ {tier_name} &7(Tier {tier})");
+    }
+
+    public List<String> getTierInfoLore() {
+        return config.getStringList("gui.tier-info.lore");
+    }
+
+    // Navigation settings
+    public String getNavigationPreviousName() {
+        return config.getString("gui.navigation.previous.name", "&c◀ Previous Tier");
+    }
+
+    public List<String> getNavigationPreviousLore() {
+        return config.getStringList("gui.navigation.previous.lore");
+    }
+
+    public String getNavigationNextName() {
+        return config.getString("gui.navigation.next.name", "&a▶ Next Tier");
+    }
+
+    public List<String> getNavigationNextLore() {
+        return config.getStringList("gui.navigation.next.lore");
+    }
+
+    // Player stats settings
+    public String getPlayerStatsName() {
+        return config.getString("gui.player-stats.name", "{accent}⚡ {player}'s Stats");
+    }
+
+    public List<String> getPlayerStatsLore() {
+        return config.getStringList("gui.player-stats.lore");
+    }
+
+    // Armor piece settings
+    public String getArmorPieceNameFormat() {
+        return config.getString("gui.armor-piece.name-format", "{hex_color}{tier_name} {piece_name}");
+    }
+
+    public List<String> getArmorPieceLore() {
+        return config.getStringList("gui.armor-piece.lore");
+    }
+
+    // Essence settings
+    public String getEssenceName() {
+        return config.getString("essence.name", "<gradient:#8B00FF:#FF1493>Armor Essence</gradient>");
+    }
+
+    public List<String> getEssenceLore() {
+        return config.getStringList("essence.lore");
     }
 
     // Check if tier exists in config

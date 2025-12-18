@@ -1,44 +1,36 @@
 package me.macmoment.customarmor.utils;
 
+import me.macmoment.customarmor.CustomArmor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.ChatColor;
 
 /**
  * Utility class for text formatting
- * Maps to the fancy() function and color formatting from Skript
+ * All colors and prefix are read from config.yml
  */
 public class TextUtils {
-    
-    private static final String PREFIX = "&8[<##FF9100>&lA<##FFB047>&lR<##FFCE8D>&lM<##FFB047>&lO<##FF9100>&lR&8] &8»&7";
-    private static final String COLOR = "<##FFCE8D>";
 
     /**
-     * Converts text to fancy format (just returns the text for 1:1 parity)
-     * In the original Skript, fancy() appears to just return the input
-     */
-    public static String fancy(String text) {
-        return text;
-    }
-
-    /**
-     * Gets the prefix from options
+     * Gets the prefix from config
      */
     public static String getPrefix() {
-        return colorize(PREFIX);
+        return colorize(CustomArmor.getInstance().getConfigManager().getPrefix());
     }
 
     /**
-     * Gets the color from options
+     * Gets the accent color from config
      */
     public static String getColor() {
-        return COLOR;
+        return CustomArmor.getInstance().getConfigManager().getAccentColor();
     }
 
     /**
      * Colorizes a string with & and hex color codes
      */
     public static String colorize(String text) {
+        if (text == null) return "";
+        
         // Handle hex colors like <##RRGGBB>
         text = net.md_5.bungee.api.ChatColor.translateAlternateColorCodes('&', text);
         
@@ -68,5 +60,15 @@ public class TextUtils {
      */
     public static String stripColor(String text) {
         return ChatColor.stripColor(colorize(text));
+    }
+    
+    /**
+     * Replaces common placeholders in text with actual values
+     * @param text The text with placeholders
+     * @return The text with {accent} replaced with the accent color from config
+     */
+    public static String replacePlaceholders(String text) {
+        if (text == null) return "";
+        return text.replace("{accent}", getColor());
     }
 }

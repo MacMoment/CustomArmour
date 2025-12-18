@@ -1,7 +1,6 @@
 package me.macmoment.customarmor.data;
 
 import me.macmoment.customarmor.config.ConfigManager;
-import me.macmoment.customarmor.utils.TextUtils;
 import org.bukkit.Color;
 
 import java.util.ArrayList;
@@ -11,8 +10,7 @@ import java.util.Map;
 
 /**
  * Stores all registered armor tiers
- * Maps to the on load section and regArmor function from Skript
- * Now loads from config.yml for full customization
+ * All tier data is loaded from config.yml for full customization
  */
 public class ArmorRegistry {
     private final Map<Integer, ArmorTier> tiers = new HashMap<>();
@@ -28,7 +26,7 @@ public class ArmorRegistry {
         
         for (int tier = 1; tier <= maxTier; tier++) {
             if (configManager.hasTier(tier)) {
-                String name = TextUtils.fancy(configManager.getArmorName(tier));
+                String name = configManager.getArmorName(tier);
                 Color rgbColor = configManager.getArmorRGBColor(tier);
                 String hexColor = configManager.getArmorHexColor(tier);
                 double multiplier = configManager.getArmorMultiplier(tier);
@@ -42,13 +40,22 @@ public class ArmorRegistry {
 
     private void registerArmor(int tier, String name, Color rgbColor, String hexColor, 
                                double multiplier, int price, String headTexture) {
+        // Build lore from armor piece lore config
+        List<String> armorPieceLore = configManager.getArmorPieceLore();
         List<String> lore = new ArrayList<>();
-        lore.add("");
-        lore.add(hexColor + TextUtils.fancy("statistics"));
-        lore.add(hexColor + "&l┃ &f" + TextUtils.fancy("multi") + ": " + hexColor + multiplier + "x");
-        lore.add(hexColor + "&l┃ &f" + TextUtils.fancy("tier") + ": " + hexColor + tier);
-        lore.add("");
-        lore.add("&8" + TextUtils.fancy("this multi is per armor piece"));
+        
+        for (String line : armorPieceLore) {
+            // Replace placeholders but don't add price/click text for stored lore
+            // (that's handled separately in the GUI for display items vs actual armor)
+            String processedLine = line
+                .replace("{accent}", configManager.getAccentColor())
+                .replace("{hex_color}", hexColor)
+                .replace("{tier_name}", name)
+                .replace("{tier}", String.valueOf(tier))
+                .replace("{multiplier}", String.valueOf(multiplier))
+                .replace("{price}", String.valueOf(price));
+            lore.add(processedLine);
+        }
 
         ArmorTier armorTier = new ArmorTier(tier, name, rgbColor, hexColor, multiplier, price, headTexture, lore);
         tiers.put(tier, armorTier);
