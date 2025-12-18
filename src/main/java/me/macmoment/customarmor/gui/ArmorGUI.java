@@ -123,7 +123,7 @@ public class ArmorGUI {
      */
     private static void populateInventory(Inventory inventory, Player player, ArmorTier tier,
                                           int currentPage, int maxPages, ConfigManager config) {
-        List<String> armorLore = buildArmorPieceLore(tier, config);
+        List<Component> armorLore = buildArmorPieceLore(tier, config);
 
         inventory.setItem(config.getSlotTierInfo(), createTierInfoItem(tier, config));
         inventory.setItem(config.getSlotHelmet(), createHelmetItem(tier, armorLore, config));
@@ -169,7 +169,7 @@ public class ArmorGUI {
             .replace("{tier}", String.valueOf(tier.getTier()));
         meta.displayName(TextUtils.colorizeToComponent(displayName));
 
-        List<String> lore = new ArrayList<>();
+        List<Component> lore = new ArrayList<>();
         for (String line : config.getTierInfoLore()) {
             String processedLine = line
                 .replace("{accent}", accentColor)
@@ -179,9 +179,9 @@ public class ArmorGUI {
                 .replace("{multiplier}", String.valueOf(tier.getMultiplier()))
                 .replace("{price}", String.valueOf(tier.getPrice()))
                 .replace("{full_set_bonus}", String.format("%.2f", fullSetBonus));
-            lore.add(TextUtils.colorize(processedLine));
+            lore.add(TextUtils.colorizeToComponent(processedLine));
         }
-        meta.setLore(lore);
+        meta.lore(lore);
 
         item.setItemMeta(meta);
         return item;
@@ -190,7 +190,7 @@ public class ArmorGUI {
     /**
      * Creates the custom helmet item using a player head with custom texture.
      */
-    private static ItemStack createHelmetItem(ArmorTier tier, List<String> lore, ConfigManager config) {
+    private static ItemStack createHelmetItem(ArmorTier tier, List<Component> lore, ConfigManager config) {
         ItemStack helmet = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta meta = (SkullMeta) helmet.getItemMeta();
         if (meta == null) {
@@ -206,7 +206,7 @@ public class ArmorGUI {
             .replace("{tier_name}", tier.getName())
             .replace("{piece_name}", "Helmet");
         meta.displayName(TextUtils.colorizeToComponent(displayName));
-        meta.setLore(lore);
+        meta.lore(lore);
 
         helmet.setItemMeta(meta);
         return helmet;
@@ -216,7 +216,7 @@ public class ArmorGUI {
      * Creates a leather armor item (chestplate, leggings, or boots) with tier-specific color.
      */
     private static ItemStack createLeatherArmorItem(Material material, ArmorTier tier,
-                                                    String pieceName, List<String> lore, ConfigManager config) {
+                                                    String pieceName, List<Component> lore, ConfigManager config) {
         ItemStack armorPiece = new ItemStack(material);
         LeatherArmorMeta meta = (LeatherArmorMeta) armorPiece.getItemMeta();
         if (meta == null) {
@@ -230,7 +230,7 @@ public class ArmorGUI {
             .replace("{tier_name}", tier.getName())
             .replace("{piece_name}", pieceName);
         meta.displayName(TextUtils.colorizeToComponent(displayName));
-        meta.setLore(lore);
+        meta.lore(lore);
 
         armorPiece.setItemMeta(meta);
         return armorPiece;
@@ -258,7 +258,7 @@ public class ArmorGUI {
             .replace("{player}", player.getName());
         meta.displayName(TextUtils.colorizeToComponent(displayName));
 
-        List<String> lore = new ArrayList<>();
+        List<Component> lore = new ArrayList<>();
         for (String line : config.getPlayerStatsLore()) {
             String processedLine = line
                 .replace("{accent}", accentColor)
@@ -266,9 +266,9 @@ public class ArmorGUI {
                 .replace("{multiplier}", String.format("%.2f", multiplier))
                 .replace("{armor_count}", String.valueOf(armorCount))
                 .replace("{essence}", String.valueOf(essence));
-            lore.add(TextUtils.colorize(processedLine));
+            lore.add(TextUtils.colorizeToComponent(processedLine));
         }
-        meta.setLore(lore);
+        meta.lore(lore);
 
         skull.setItemMeta(meta);
         return skull;
@@ -307,15 +307,15 @@ public class ArmorGUI {
         ArmorTier targetTier = CustomArmor.getInstance().getArmorRegistry().getTier(targetPage);
         if (targetTier != null) {
             List<String> loreTemplate = isNext ? config.getNavigationNextLore() : config.getNavigationPreviousLore();
-            List<String> lore = new ArrayList<>();
+            List<Component> lore = new ArrayList<>();
             for (String line : loreTemplate) {
                 String processedLine = line
                     .replace("{target_hex_color}", targetTier.getHexColor())
                     .replace("{target_tier_name}", targetTier.getName())
                     .replace("{target_tier}", String.valueOf(targetPage));
-                lore.add(TextUtils.colorize(processedLine));
+                lore.add(TextUtils.colorizeToComponent(processedLine));
             }
-            meta.setLore(lore);
+            meta.lore(lore);
         }
 
         arrow.setItemMeta(meta);
@@ -326,9 +326,10 @@ public class ArmorGUI {
 
     /**
      * Builds the lore list for armor pieces using config settings.
+     * Returns Components with italic disabled by default.
      */
-    private static List<String> buildArmorPieceLore(ArmorTier tier, ConfigManager config) {
-        List<String> lore = new ArrayList<>();
+    private static List<Component> buildArmorPieceLore(ArmorTier tier, ConfigManager config) {
+        List<Component> lore = new ArrayList<>();
         String accentColor = config.getAccentColor();
         
         for (String line : config.getArmorPieceLore()) {
@@ -339,7 +340,7 @@ public class ArmorGUI {
                 .replace("{tier}", String.valueOf(tier.getTier()))
                 .replace("{multiplier}", String.valueOf(tier.getMultiplier()))
                 .replace("{price}", String.valueOf(tier.getPrice()));
-            lore.add(TextUtils.colorize(processedLine));
+            lore.add(TextUtils.colorizeToComponent(processedLine));
         }
         
         return lore;
