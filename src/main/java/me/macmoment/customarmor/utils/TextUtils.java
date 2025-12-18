@@ -3,6 +3,7 @@ package me.macmoment.customarmor.utils;
 import me.macmoment.customarmor.CustomArmor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.ChatColor;
 
 /**
@@ -46,6 +47,22 @@ public class TextUtils {
         matcher.appendTail(buffer);
         
         return buffer.toString();
+    }
+
+    /**
+     * Colorizes a string and returns it as an Adventure Component.
+     * Properly handles both legacy color codes (&) and hex colors (<##RRGGBB>).
+     * @param text The text to colorize
+     * @return The colorized text as a Component
+     */
+    public static Component colorizeToComponent(String text) {
+        if (text == null) return Component.empty();
+        
+        // First colorize using legacy method to get the properly formatted string
+        String colorized = colorize(text);
+        
+        // Then deserialize the legacy-formatted string to Component
+        return LegacyComponentSerializer.legacySection().deserialize(colorized);
     }
 
     /**
