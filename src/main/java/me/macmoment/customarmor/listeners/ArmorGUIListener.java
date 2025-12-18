@@ -24,11 +24,15 @@ import java.util.regex.Pattern;
  */
 public class ArmorGUIListener implements Listener {
 
+    // Pattern to match our GUI title format: "Armor Browser (Tier X/Y)"
+    private static final Pattern GUI_TITLE_PATTERN = Pattern.compile("^Armor Browser \\(Tier \\d+/\\d+\\)$");
+
     /**
-     * Checks if the inventory view title matches our armor browser GUI
+     * Checks if the inventory view title matches our armor browser GUI.
+     * Uses exact pattern matching to avoid matching unintended inventories.
      */
     private boolean isArmorBrowserGUI(String title) {
-        return title.contains("Armor Browser");
+        return GUI_TITLE_PATTERN.matcher(title).matches();
     }
 
     @EventHandler
@@ -99,16 +103,8 @@ public class ArmorGUIListener implements Listener {
         // Check if this is our armor browser GUI
         if (!isArmorBrowserGUI(title)) return;
         
-        // Cancel all drag events in the armor browser GUI
-        int guiSize = CustomArmor.getInstance().getConfigManager().getGUISize();
-        
-        // If any of the dragged slots are in the top inventory, cancel the event
-        for (int slot : event.getRawSlots()) {
-            if (slot >= 0 && slot < guiSize) {
-                event.setCancelled(true);
-                return;
-            }
-        }
+        // Cancel all drag events in the armor browser GUI to prevent any item manipulation
+        event.setCancelled(true);
     }
 
     /**
