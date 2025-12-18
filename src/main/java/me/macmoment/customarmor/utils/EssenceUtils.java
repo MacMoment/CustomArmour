@@ -1,6 +1,7 @@
 package me.macmoment.customarmor.utils;
 
 import me.macmoment.customarmor.CustomArmor;
+import me.macmoment.customarmor.config.ConfigManager;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -13,7 +14,7 @@ import java.util.List;
 
 /**
  * Utility class for Armor Essence operations
- * Maps to giveEssence, getPlayerEssence, removeEssence functions from Skript
+ * Essence name and lore are read from config.yml
  */
 public class EssenceUtils {
 
@@ -21,23 +22,27 @@ public class EssenceUtils {
 
     /**
      * Gives armor essence to a player
-     * Maps to giveEssence function from Skript
+     * Uses name and lore from config
      */
     public static void giveEssence(Player player, int amount) {
+        ConfigManager config = CustomArmor.getInstance().getConfigManager();
+        
         ItemStack essence = new ItemStack(Material.NETHER_STAR, amount);
         ItemMeta meta = essence.getItemMeta();
         
-        // Set name with gradient (using MiniMessage)
-        meta.displayName(TextUtils.miniMessage("<gradient:#8B00FF:#FF1493>Armor Essence</gradient>"));
+        // Set name from config (supports MiniMessage gradients)
+        String essenceName = config.getEssenceName();
+        meta.displayName(TextUtils.miniMessage(essenceName));
         
-        // Set lore
+        // Set lore from config
+        List<String> configLore = config.getEssenceLore();
         List<String> lore = new ArrayList<>();
-        lore.add("");
-        lore.add(TextUtils.colorize(TextUtils.getColor() + TextUtils.fancy("information")));
-        lore.add(TextUtils.colorize(TextUtils.getColor() + "&l┃ &f" + TextUtils.fancy("A crystallized essence of power")));
-        lore.add(TextUtils.colorize(TextUtils.getColor() + "&l┃ &f" + TextUtils.fancy("Used to buy & upgrade armor")));
-        lore.add("");
-        lore.add(TextUtils.colorize("&7" + TextUtils.fancy("Use in /armor menu")));
+        String accentColor = config.getAccentColor();
+        
+        for (String line : configLore) {
+            String processedLine = line.replace("{accent}", accentColor);
+            lore.add(TextUtils.colorize(processedLine));
+        }
         meta.setLore(lore);
         
         // Set custom data
@@ -49,7 +54,6 @@ public class EssenceUtils {
 
     /**
      * Gets the total amount of essence a player has
-     * Maps to getPlayerEssence function from Skript
      */
     public static int getPlayerEssence(Player player) {
         int total = 0;
@@ -65,7 +69,6 @@ public class EssenceUtils {
 
     /**
      * Removes essence from a player's inventory
-     * Maps to removeEssence function from Skript
      */
     public static void removeEssence(Player player, int amount) {
         int toRemove = amount;

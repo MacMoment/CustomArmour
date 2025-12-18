@@ -3,6 +3,7 @@ package me.macmoment.customarmor.gui;
 import com.destroystokyo.paper.profile.PlayerProfile;
 import com.destroystokyo.paper.profile.ProfileProperty;
 import me.macmoment.customarmor.CustomArmor;
+import me.macmoment.customarmor.config.ConfigManager;
 import me.macmoment.customarmor.data.ArmorTier;
 import me.macmoment.customarmor.utils.ArmorUtils;
 import me.macmoment.customarmor.utils.EssenceUtils;
@@ -18,19 +19,19 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
 /**
  * Manages the armor shop GUI for browsing and purchasing armor tiers.
  * <p>
- * This class handles the creation and population of a 54-slot (6-row) inventory GUI
+ * This class handles the creation and population of a configurable inventory GUI
  * that displays armor pieces, tier information, player statistics, and navigation controls.
+ * All settings are read from config.yml for full customization.
  * </p>
  *
  * <pre>
- * GUI Layout (54 slots - 6 rows):
+ * Default GUI Layout (54 slots - 6 rows):
  * ┌───┬───┬───┬───┬───┬───┬───┬───┬───┐
  * │ ○ │   │   │   │ ○ │   │   │   │ ○ │  Row 1: Border with corner/center accents
  * ├───┼───┼───┼───┼───┼───┼───┼───┼───┤
@@ -48,42 +49,8 @@ import java.util.UUID;
  */
 public class ArmorGUI {
 
-    // ==================== GUI Configuration ====================
-
-    /** Total number of slots in the GUI (6 rows × 9 columns). */
-    public static final int GUI_SIZE = 54;
-
     /** Number of armor pieces in a complete set. */
     public static final int ARMOR_PIECES_PER_SET = 4;
-
-    // ==================== Slot Positions ====================
-
-    /** Slot position for the previous tier navigation arrow. */
-    public static final int SLOT_PREV = 10;
-
-    /** Slot position for the next tier navigation arrow. */
-    public static final int SLOT_NEXT = 16;
-
-    /** Slot position for the tier information book. */
-    public static final int SLOT_TIER_INFO = 13;
-
-    /** Slot position for the helmet armor piece. */
-    public static final int SLOT_HELMET = 29;
-
-    /** Slot position for the chestplate armor piece. */
-    public static final int SLOT_CHESTPLATE = 30;
-
-    /** Slot position for the leggings armor piece. */
-    public static final int SLOT_LEGGINGS = 32;
-
-    /** Slot position for the boots armor piece. */
-    public static final int SLOT_BOOTS = 33;
-
-    /** Slot position for the player statistics display. */
-    public static final int SLOT_STATS = 49;
-
-    /** Slot positions for orange accent glass panes (corners and key positions). */
-    private static final int[] ACCENT_SLOTS = {0, 4, 8, 31, 45, 53};
 
     // ==================== Public Methods ====================
 
@@ -102,9 +69,52 @@ public class ArmorGUI {
             return;
         }
 
-        Inventory inventory = createBaseInventory(normalizedPage, maxTier);
-        populateInventory(inventory, player, armorTier, normalizedPage, maxTier);
+        ConfigManager config = CustomArmor.getInstance().getConfigManager();
+        Inventory inventory = createBaseInventory(normalizedPage, maxTier, config);
+        populateInventory(inventory, player, armorTier, normalizedPage, maxTier, config);
         player.openInventory(inventory);
+    }
+
+    /**
+     * Gets the slot position for the previous button from config.
+     */
+    public static int getSlotPrev() {
+        return CustomArmor.getInstance().getConfigManager().getSlotPrevious();
+    }
+
+    /**
+     * Gets the slot position for the next button from config.
+     */
+    public static int getSlotNext() {
+        return CustomArmor.getInstance().getConfigManager().getSlotNext();
+    }
+
+    /**
+     * Gets the slot position for the helmet from config.
+     */
+    public static int getSlotHelmet() {
+        return CustomArmor.getInstance().getConfigManager().getSlotHelmet();
+    }
+
+    /**
+     * Gets the slot position for the chestplate from config.
+     */
+    public static int getSlotChestplate() {
+        return CustomArmor.getInstance().getConfigManager().getSlotChestplate();
+    }
+
+    /**
+     * Gets the slot position for the leggings from config.
+     */
+    public static int getSlotLeggings() {
+        return CustomArmor.getInstance().getConfigManager().getSlotLeggings();
+    }
+
+    /**
+     * Gets the slot position for the boots from config.
+     */
+    public static int getSlotBoots() {
+        return CustomArmor.getInstance().getConfigManager().getSlotBoots();
     }
 
     // ==================== Inventory Creation ====================
@@ -112,35 +122,40 @@ public class ArmorGUI {
     /**
      * Creates the base inventory with border glass panes and accent decorations.
      */
-    private static Inventory createBaseInventory(int currentPage, int maxPages) {
-        String title = TextUtils.colorize(
-            "&8" + TextUtils.fancy("Armor Browser") + " &7(Tier " + currentPage + "/" + maxPages + ")"
-        );
-        Inventory inventory = Bukkit.createInventory(null, GUI_SIZE, title);
+    private static Inventory createBaseInventory(int currentPage, int maxPages, ConfigManager config) {
+        String title = config.getGUITitle()
+            .replace("{tier}", String.valueOf(currentPage))
+            .replace("{max_tier}", String.valueOf(maxPages));
+        title = TextUtils.colorize(title);
+        
+        int guiSize = config.getGUISize();
+        Inventory inventory = Bukkit.createInventory(null, guiSize, title);
 
-        fillWithBorder(inventory);
-        addAccentDecorations(inventory);
+        fillWithBorder(inventory, guiSize, config);
+        addAccentDecorations(inventory, config);
 
         return inventory;
     }
 
     /**
-     * Fills all inventory slots with gray glass pane borders.
+     * Fills all inventory slots with border glass panes.
      */
-    private static void fillWithBorder(Inventory inventory) {
-        ItemStack borderPane = createGlassPane(Material.GRAY_STAINED_GLASS_PANE);
-        for (int slot = 0; slot < GUI_SIZE; slot++) {
+    private static void fillWithBorder(Inventory inventory, int guiSize, ConfigManager config) {
+        ItemStack borderPane = createGlassPane(config.getBorderPaneMaterial());
+        for (int slot = 0; slot < guiSize; slot++) {
             inventory.setItem(slot, borderPane);
         }
     }
 
     /**
-     * Adds orange accent glass panes at designated positions.
+     * Adds accent glass panes at designated positions from config.
      */
-    private static void addAccentDecorations(Inventory inventory) {
-        ItemStack accentPane = createGlassPane(Material.ORANGE_STAINED_GLASS_PANE);
-        for (int slot : ACCENT_SLOTS) {
-            inventory.setItem(slot, accentPane);
+    private static void addAccentDecorations(Inventory inventory, ConfigManager config) {
+        ItemStack accentPane = createGlassPane(config.getAccentPaneMaterial());
+        for (int slot : config.getAccentSlots()) {
+            if (slot >= 0 && slot < inventory.getSize()) {
+                inventory.setItem(slot, accentPane);
+            }
         }
     }
 
@@ -148,17 +163,17 @@ public class ArmorGUI {
      * Populates the inventory with all interactive and informational items.
      */
     private static void populateInventory(Inventory inventory, Player player, ArmorTier tier,
-                                          int currentPage, int maxPages) {
-        List<String> armorLore = buildArmorPriceLore(tier);
+                                          int currentPage, int maxPages, ConfigManager config) {
+        List<String> armorLore = buildArmorPieceLore(tier, config);
 
-        inventory.setItem(SLOT_TIER_INFO, createTierInfoItem(tier));
-        inventory.setItem(SLOT_HELMET, createHelmetItem(tier, armorLore));
-        inventory.setItem(SLOT_CHESTPLATE, createLeatherArmorItem(Material.LEATHER_CHESTPLATE, tier, "Chestplate", armorLore));
-        inventory.setItem(SLOT_LEGGINGS, createLeatherArmorItem(Material.LEATHER_LEGGINGS, tier, "Leggings", armorLore));
-        inventory.setItem(SLOT_BOOTS, createLeatherArmorItem(Material.LEATHER_BOOTS, tier, "Boots", armorLore));
-        inventory.setItem(SLOT_STATS, createPlayerStatsItem(player));
+        inventory.setItem(config.getSlotTierInfo(), createTierInfoItem(tier, config));
+        inventory.setItem(config.getSlotHelmet(), createHelmetItem(tier, armorLore, config));
+        inventory.setItem(config.getSlotChestplate(), createLeatherArmorItem(Material.LEATHER_CHESTPLATE, tier, "Chestplate", armorLore, config));
+        inventory.setItem(config.getSlotLeggings(), createLeatherArmorItem(Material.LEATHER_LEGGINGS, tier, "Leggings", armorLore, config));
+        inventory.setItem(config.getSlotBoots(), createLeatherArmorItem(Material.LEATHER_BOOTS, tier, "Boots", armorLore, config));
+        inventory.setItem(config.getSlotPlayerStats(), createPlayerStatsItem(player, config));
 
-        addNavigationItems(inventory, currentPage, maxPages);
+        addNavigationItems(inventory, currentPage, maxPages, config);
     }
 
     // ==================== Item Creation Methods ====================
@@ -177,37 +192,46 @@ public class ArmorGUI {
     }
 
     /**
-     * Creates the tier information book item displaying tier statistics.
+     * Creates the tier information item displaying tier statistics.
      */
-    private static ItemStack createTierInfoItem(ArmorTier tier) {
-        ItemStack book = new ItemStack(Material.BOOK);
-        ItemMeta meta = book.getItemMeta();
+    private static ItemStack createTierInfoItem(ArmorTier tier, ConfigManager config) {
+        ItemStack item = new ItemStack(config.getTierInfoMaterial());
+        ItemMeta meta = item.getItemMeta();
         if (meta == null) {
-            return book;
+            return item;
         }
 
-        String displayName = tier.getHexColor() + "⚔ " + tier.getName() + " &7(Tier " + tier.getTier() + ")";
+        String accentColor = config.getAccentColor();
+        double fullSetBonus = tier.getMultiplier() * ARMOR_PIECES_PER_SET;
+        
+        String displayName = config.getTierInfoName()
+            .replace("{hex_color}", tier.getHexColor())
+            .replace("{tier_name}", tier.getName())
+            .replace("{tier}", String.valueOf(tier.getTier()));
         meta.displayName(Component.text(TextUtils.colorize(displayName)));
 
-        double fullSetBonus = tier.getMultiplier() * ARMOR_PIECES_PER_SET;
-        List<String> lore = Arrays.asList(
-            "",
-            TextUtils.colorize("&7This tier provides:"),
-            TextUtils.colorize(" " + TextUtils.getColor() + "▸ &f+" + tier.getMultiplier() + "x &7multiplier per piece"),
-            TextUtils.colorize(" " + TextUtils.getColor() + "▸ &f" + tier.getPrice() + " &7essence per piece"),
-            "",
-            TextUtils.colorize("&7Full set bonus: " + TextUtils.getColor() + "+" + String.format("%.2f", fullSetBonus) + "x")
-        );
+        List<String> lore = new ArrayList<>();
+        for (String line : config.getTierInfoLore()) {
+            String processedLine = line
+                .replace("{accent}", accentColor)
+                .replace("{hex_color}", tier.getHexColor())
+                .replace("{tier_name}", tier.getName())
+                .replace("{tier}", String.valueOf(tier.getTier()))
+                .replace("{multiplier}", String.valueOf(tier.getMultiplier()))
+                .replace("{price}", String.valueOf(tier.getPrice()))
+                .replace("{full_set_bonus}", String.format("%.2f", fullSetBonus));
+            lore.add(TextUtils.colorize(processedLine));
+        }
         meta.setLore(lore);
 
-        book.setItemMeta(meta);
-        return book;
+        item.setItemMeta(meta);
+        return item;
     }
 
     /**
      * Creates the custom helmet item using a player head with custom texture.
      */
-    private static ItemStack createHelmetItem(ArmorTier tier, List<String> lore) {
+    private static ItemStack createHelmetItem(ArmorTier tier, List<String> lore, ConfigManager config) {
         ItemStack helmet = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta meta = (SkullMeta) helmet.getItemMeta();
         if (meta == null) {
@@ -218,7 +242,10 @@ public class ArmorGUI {
         profile.setProperty(new ProfileProperty("textures", tier.getHeadTexture()));
         meta.setPlayerProfile(profile);
 
-        String displayName = tier.getHexColor() + tier.getName() + " " + TextUtils.fancy("Helmet");
+        String displayName = config.getArmorPieceNameFormat()
+            .replace("{hex_color}", tier.getHexColor())
+            .replace("{tier_name}", tier.getName())
+            .replace("{piece_name}", "Helmet");
         meta.displayName(Component.text(TextUtils.colorize(displayName)));
         meta.setLore(lore);
 
@@ -230,7 +257,7 @@ public class ArmorGUI {
      * Creates a leather armor item (chestplate, leggings, or boots) with tier-specific color.
      */
     private static ItemStack createLeatherArmorItem(Material material, ArmorTier tier,
-                                                    String pieceName, List<String> lore) {
+                                                    String pieceName, List<String> lore, ConfigManager config) {
         ItemStack armorPiece = new ItemStack(material);
         LeatherArmorMeta meta = (LeatherArmorMeta) armorPiece.getItemMeta();
         if (meta == null) {
@@ -239,7 +266,10 @@ public class ArmorGUI {
 
         meta.setColor(tier.getRgbColor());
 
-        String displayName = tier.getHexColor() + tier.getName() + " " + TextUtils.fancy(pieceName);
+        String displayName = config.getArmorPieceNameFormat()
+            .replace("{hex_color}", tier.getHexColor())
+            .replace("{tier_name}", tier.getName())
+            .replace("{piece_name}", pieceName);
         meta.displayName(Component.text(TextUtils.colorize(displayName)));
         meta.setLore(lore);
 
@@ -250,7 +280,7 @@ public class ArmorGUI {
     /**
      * Creates the player statistics item showing current armor stats and essence balance.
      */
-    private static ItemStack createPlayerStatsItem(Player player) {
+    private static ItemStack createPlayerStatsItem(Player player, ConfigManager config) {
         ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta meta = (SkullMeta) skull.getItemMeta();
         if (meta == null) {
@@ -262,19 +292,23 @@ public class ArmorGUI {
         int essence = EssenceUtils.getPlayerEssence(player);
         double multiplier = ArmorUtils.getArmorStats(player);
         int armorCount = ArmorUtils.getArmorAmount(player);
+        String accentColor = config.getAccentColor();
 
-        String displayName = TextUtils.getColor() + "⚡ " + player.getName() + "'s Stats";
+        String displayName = config.getPlayerStatsName()
+            .replace("{accent}", accentColor)
+            .replace("{player}", player.getName());
         meta.displayName(Component.text(TextUtils.colorize(displayName)));
 
-        List<String> lore = Arrays.asList(
-            "",
-            TextUtils.colorize("&7Your armor stats:"),
-            TextUtils.colorize(" " + TextUtils.getColor() + "▸ &fMultiplier: " + TextUtils.getColor() + String.format("%.2f", multiplier) + "x"),
-            TextUtils.colorize(" " + TextUtils.getColor() + "▸ &fArmor Pieces: " + TextUtils.getColor() + armorCount + "/" + ARMOR_PIECES_PER_SET),
-            "",
-            TextUtils.colorize("&7Your inventory:"),
-            TextUtils.colorize(" " + TextUtils.getColor() + "▸ &fArmor Essence: " + TextUtils.getColor() + essence)
-        );
+        List<String> lore = new ArrayList<>();
+        for (String line : config.getPlayerStatsLore()) {
+            String processedLine = line
+                .replace("{accent}", accentColor)
+                .replace("{player}", player.getName())
+                .replace("{multiplier}", String.format("%.2f", multiplier))
+                .replace("{armor_count}", String.valueOf(armorCount))
+                .replace("{essence}", String.valueOf(essence));
+            lore.add(TextUtils.colorize(processedLine));
+        }
         meta.setLore(lore);
 
         skull.setItemMeta(meta);
@@ -286,12 +320,12 @@ public class ArmorGUI {
     /**
      * Adds navigation arrow items for browsing between tier pages.
      */
-    private static void addNavigationItems(Inventory inventory, int currentPage, int maxPages) {
+    private static void addNavigationItems(Inventory inventory, int currentPage, int maxPages, ConfigManager config) {
         if (currentPage > 1) {
-            inventory.setItem(SLOT_PREV, createNavigationArrow(currentPage - 1, false));
+            inventory.setItem(config.getSlotPrevious(), createNavigationArrow(currentPage - 1, false, config));
         }
         if (currentPage < maxPages) {
-            inventory.setItem(SLOT_NEXT, createNavigationArrow(currentPage + 1, true));
+            inventory.setItem(config.getSlotNext(), createNavigationArrow(currentPage + 1, true, config));
         }
     }
 
@@ -301,22 +335,27 @@ public class ArmorGUI {
      * @param targetPage the page number this arrow navigates to
      * @param isNext     true for next arrow, false for previous arrow
      */
-    private static ItemStack createNavigationArrow(int targetPage, boolean isNext) {
-        ItemStack arrow = new ItemStack(Material.ARROW);
+    private static ItemStack createNavigationArrow(int targetPage, boolean isNext, ConfigManager config) {
+        ItemStack arrow = new ItemStack(config.getNavigationArrowMaterial());
         ItemMeta meta = arrow.getItemMeta();
         if (meta == null) {
             return arrow;
         }
 
-        String displayName = isNext ? "&a▶ Next Tier" : "&c◀ Previous Tier";
+        String displayName = isNext ? config.getNavigationNextName() : config.getNavigationPreviousName();
         meta.displayName(Component.text(TextUtils.colorize(displayName)));
 
         ArmorTier targetTier = CustomArmor.getInstance().getArmorRegistry().getTier(targetPage);
         if (targetTier != null) {
-            List<String> lore = Arrays.asList(
-                "",
-                TextUtils.colorize("&7Go to: " + targetTier.getHexColor() + targetTier.getName())
-            );
+            List<String> loreTemplate = isNext ? config.getNavigationNextLore() : config.getNavigationPreviousLore();
+            List<String> lore = new ArrayList<>();
+            for (String line : loreTemplate) {
+                String processedLine = line
+                    .replace("{target_hex_color}", targetTier.getHexColor())
+                    .replace("{target_tier_name}", targetTier.getName())
+                    .replace("{target_tier}", String.valueOf(targetPage));
+                lore.add(TextUtils.colorize(processedLine));
+            }
             meta.setLore(lore);
         }
 
@@ -327,22 +366,22 @@ public class ArmorGUI {
     // ==================== Helper Methods ====================
 
     /**
-     * Builds the lore list for armor pieces including tier stats, price, and interaction hint.
-     * Uses the tier's base lore and appends purchase information.
+     * Builds the lore list for armor pieces using config settings.
      */
-    private static List<String> buildArmorPriceLore(ArmorTier tier) {
+    private static List<String> buildArmorPieceLore(ArmorTier tier, ConfigManager config) {
         List<String> lore = new ArrayList<>();
+        String accentColor = config.getAccentColor();
         
-        // Add the tier's base statistics lore
-        for (String line : tier.getLore()) {
-            lore.add(TextUtils.colorize(line));
+        for (String line : config.getArmorPieceLore()) {
+            String processedLine = line
+                .replace("{accent}", accentColor)
+                .replace("{hex_color}", tier.getHexColor())
+                .replace("{tier_name}", tier.getName())
+                .replace("{tier}", String.valueOf(tier.getTier()))
+                .replace("{multiplier}", String.valueOf(tier.getMultiplier()))
+                .replace("{price}", String.valueOf(tier.getPrice()));
+            lore.add(TextUtils.colorize(processedLine));
         }
-        
-        // Add price and interaction information
-        lore.add("");
-        lore.add(TextUtils.colorize("&fPrice: " + TextUtils.getColor() + tier.getPrice() + "x &fArmor Essence"));
-        lore.add("");
-        lore.add(TextUtils.colorize("&e▶ Click to buy or upgrade!"));
         
         return lore;
     }

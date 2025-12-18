@@ -3,6 +3,7 @@ package me.macmoment.customarmor.utils;
 import com.destroystokyo.paper.profile.PlayerProfile;
 import com.destroystokyo.paper.profile.ProfileProperty;
 import me.macmoment.customarmor.CustomArmor;
+import me.macmoment.customarmor.config.ConfigManager;
 import me.macmoment.customarmor.data.ArmorTier;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -18,11 +19,10 @@ import net.kyori.adventure.text.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * Utility class for armor-related operations
- * Maps to giveArmor, getArmorStats, getArmorAmount functions from Skript
+ * All display names and lore are read from config.yml
  */
 public class ArmorUtils {
 
@@ -32,7 +32,6 @@ public class ArmorUtils {
 
     /**
      * Gives armor to a player
-     * Maps to giveArmor function from Skript
      */
     public static void giveArmor(Player player, int tier, String part) {
         ArmorTier armorTier = CustomArmor.getInstance().getArmorRegistry().getTier(tier);
@@ -51,11 +50,12 @@ public class ArmorUtils {
     }
 
     /**
-     * Creates an armor piece item
+     * Creates an armor piece item with name and lore from config
      */
     private static ItemStack createArmorPiece(ArmorTier tier, String part) {
         ItemStack item;
         String partName = part.substring(0, 1).toUpperCase() + part.substring(1);
+        ConfigManager config = CustomArmor.getInstance().getConfigManager();
 
         switch (part.toLowerCase()) {
             case "head":
@@ -67,37 +67,38 @@ public class ArmorUtils {
                 profile.setProperty(new ProfileProperty("textures", tier.getHeadTexture()));
                 skullMeta.setPlayerProfile(profile);
                 
-                skullMeta.displayName(Component.text(
-                    TextUtils.colorize(tier.getHexColor() + tier.getName() + " " + TextUtils.fancy(partName))
-                ));
+                // Set display name from config format
+                String skullDisplayName = config.getArmorPieceNameFormat()
+                    .replace("{hex_color}", tier.getHexColor())
+                    .replace("{tier_name}", tier.getName())
+                    .replace("{piece_name}", partName);
+                skullMeta.displayName(Component.text(TextUtils.colorize(skullDisplayName)));
                 
                 // Set custom data
                 skullMeta.getPersistentDataContainer().set(ARMOR_PIECE_KEY, PersistentDataType.BYTE, (byte) 1);
                 skullMeta.getPersistentDataContainer().set(TIER_KEY, PersistentDataType.INTEGER, tier.getTier());
                 skullMeta.getPersistentDataContainer().set(MULTI_KEY, PersistentDataType.DOUBLE, tier.getMultiplier());
                 
-                // Set lore
-                List<String> lore = tier.getLore().stream()
-                    .map(TextUtils::colorize)
-                    .collect(Collectors.toList());
-                skullMeta.setLore(lore);
+                // Set lore - use simplified lore for actual armor items (not GUI display)
+                List<String> skullLore = buildArmorItemLore(tier, config);
+                skullMeta.setLore(skullLore);
                 
                 item.setItemMeta(skullMeta);
                 break;
 
             case "chestplate":
                 item = new ItemStack(Material.LEATHER_CHESTPLATE);
-                setLeatherArmorMeta(item, tier, partName);
+                setLeatherArmorMeta(item, tier, partName, config);
                 break;
 
             case "leggings":
                 item = new ItemStack(Material.LEATHER_LEGGINGS);
-                setLeatherArmorMeta(item, tier, partName);
+                setLeatherArmorMeta(item, tier, partName, config);
                 break;
 
             case "boots":
                 item = new ItemStack(Material.LEATHER_BOOTS);
-                setLeatherArmorMeta(item, tier, partName);
+                setLeatherArmorMeta(item, tier, partName, config);
                 break;
 
             default:
@@ -108,15 +109,37 @@ public class ArmorUtils {
     }
 
     /**
+     * Builds simplified lore for actual armor items (not GUI display items)
+     */
+    private static List<String> buildArmorItemLore(ArmorTier tier, ConfigManager config) {
+        List<String> lore = new ArrayList<>();
+        String accentColor = config.getAccentColor();
+        
+        // Add basic stats lore without price/click information
+        lore.add("");
+        lore.add(TextUtils.colorize(tier.getHexColor() + "Statistics"));
+        lore.add(TextUtils.colorize(tier.getHexColor() + "&l┃ &fMultiplier: " + tier.getHexColor() + tier.getMultiplier() + "x"));
+        lore.add(TextUtils.colorize(tier.getHexColor() + "&l┃ &fTier: " + tier.getHexColor() + tier.getTier()));
+        lore.add("");
+        lore.add(TextUtils.colorize("&8This multiplier is per armor piece"));
+        
+        return lore;
+    }
+
+    /**
      * Sets leather armor meta with color and custom data
      */
-    private static void setLeatherArmorMeta(ItemStack item, ArmorTier tier, String partName) {
+    private static void setLeatherArmorMeta(ItemStack item, ArmorTier tier, String partName, ConfigManager config) {
         LeatherArmorMeta meta = (LeatherArmorMeta) item.getItemMeta();
         
         meta.setColor(tier.getRgbColor());
-        meta.displayName(Component.text(
-            TextUtils.colorize(tier.getHexColor() + tier.getName() + " " + TextUtils.fancy(partName))
-        ));
+        
+        // Set display name from config format
+        String displayName = config.getArmorPieceNameFormat()
+            .replace("{hex_color}", tier.getHexColor())
+            .replace("{tier_name}", tier.getName())
+            .replace("{piece_name}", partName);
+        meta.displayName(Component.text(TextUtils.colorize(displayName)));
         
         // Set custom data
         meta.getPersistentDataContainer().set(ARMOR_PIECE_KEY, PersistentDataType.BYTE, (byte) 1);
@@ -124,9 +147,7 @@ public class ArmorUtils {
         meta.getPersistentDataContainer().set(MULTI_KEY, PersistentDataType.DOUBLE, tier.getMultiplier());
         
         // Set lore
-        List<String> lore = tier.getLore().stream()
-            .map(TextUtils::colorize)
-            .collect(Collectors.toList());
+        List<String> lore = buildArmorItemLore(tier, config);
         meta.setLore(lore);
         
         item.setItemMeta(meta);
@@ -134,7 +155,6 @@ public class ArmorUtils {
 
     /**
      * Gets total armor stats multiplier from equipped armor
-     * Maps to getArmorStats function from Skript
      */
     public static double getArmorStats(Player player) {
         double total = 0.0;
@@ -153,7 +173,6 @@ public class ArmorUtils {
 
     /**
      * Gets the number of custom armor pieces equipped
-     * Maps to getArmorAmount function from Skript
      */
     public static int getArmorAmount(Player player) {
         int count = 0;

@@ -1,6 +1,7 @@
 package me.macmoment.customarmor.listeners;
 
 import me.macmoment.customarmor.CustomArmor;
+import me.macmoment.customarmor.config.ConfigManager;
 import me.macmoment.customarmor.data.ArmorTier;
 import me.macmoment.customarmor.gui.ArmorGUI;
 import me.macmoment.customarmor.utils.ArmorUtils;
@@ -18,7 +19,7 @@ import java.util.regex.Pattern;
 
 /**
  * Handles clicks in the armor GUI
- * Maps to the inventory click event from Skript
+ * All slot positions are read from config for full customization
  */
 public class ArmorGUIListener implements Listener {
 
@@ -43,23 +44,26 @@ public class ArmorGUIListener implements Listener {
         int page = Integer.parseInt(matcher.group(1));
         int slot = event.getRawSlot();
         
-        // Handle navigation using constants from ArmorGUI
-        if (slot == ArmorGUI.SLOT_PREV) {
+        // Get slot positions from config
+        ConfigManager config = CustomArmor.getInstance().getConfigManager();
+        
+        // Handle navigation and armor slots using config values
+        if (slot == config.getSlotPrevious()) {
             // Previous tier
             ArmorGUI.openGUI(player, page - 1);
-        } else if (slot == ArmorGUI.SLOT_NEXT) {
+        } else if (slot == config.getSlotNext()) {
             // Next tier
             ArmorGUI.openGUI(player, page + 1);
-        } else if (slot == ArmorGUI.SLOT_HELMET) {
+        } else if (slot == config.getSlotHelmet()) {
             // Helmet
             handleArmorPurchase(player, page, "head");
-        } else if (slot == ArmorGUI.SLOT_CHESTPLATE) {
+        } else if (slot == config.getSlotChestplate()) {
             // Chestplate
             handleArmorPurchase(player, page, "chestplate");
-        } else if (slot == ArmorGUI.SLOT_LEGGINGS) {
+        } else if (slot == config.getSlotLeggings()) {
             // Leggings
             handleArmorPurchase(player, page, "leggings");
-        } else if (slot == ArmorGUI.SLOT_BOOTS) {
+        } else if (slot == config.getSlotBoots()) {
             // Boots
             handleArmorPurchase(player, page, "boots");
         }
@@ -67,14 +71,16 @@ public class ArmorGUIListener implements Listener {
 
     /**
      * Handles armor purchase/upgrade logic
-     * Maps to handleArmorPurchase function from Skript
+     * Uses config for all messages and colors
      */
     private void handleArmorPurchase(Player player, int tier, String part) {
+        ConfigManager config = CustomArmor.getInstance().getConfigManager();
         ArmorTier armorTier = CustomArmor.getInstance().getArmorRegistry().getTier(tier);
         if (armorTier == null) return;
         
         int price = armorTier.getPrice();
         int playerEssence = EssenceUtils.getPlayerEssence(player);
+        String accentColor = config.getAccentColor();
         
         // Check if player has armor piece equipped
         boolean hasArmor = false;
@@ -103,14 +109,14 @@ public class ArmorGUIListener implements Listener {
         // If player has armor, check if upgrade
         if (hasArmor) {
             if (tier <= currentTier) {
-                String message = CustomArmor.getInstance().getConfigManager().getShopMessage("already-owned");
+                String message = config.getShopMessage("already-owned");
                 player.sendMessage(TextUtils.colorize(TextUtils.getPrefix() + " " + message));
                 return;
             }
             
             // Upgrade mode - calculate discount
-            int discountPerTier = CustomArmor.getInstance().getConfigManager().getDiscountPerTier();
-            int minPrice = CustomArmor.getInstance().getConfigManager().getMinimumPrice();
+            int discountPerTier = config.getDiscountPerTier();
+            int minPrice = config.getMinimumPrice();
             int discount = currentTier * discountPerTier;
             int finalPrice = price - discount;
             if (finalPrice < minPrice) finalPrice = minPrice;
@@ -142,16 +148,16 @@ public class ArmorGUIListener implements Listener {
                 }
                 
                 ArmorUtils.giveArmor(player, tier, part);
-                String message = CustomArmor.getInstance().getConfigManager().getShopMessage("upgraded")
+                String message = config.getShopMessage("upgraded")
                     .replace("{part}", part)
                     .replace("{tier}", String.valueOf(tier))
-                    .replace("{accent}", TextUtils.getColor())
+                    .replace("{accent}", accentColor)
                     .replace("{price}", String.valueOf(finalPrice))
                     .replace("{discount}", String.valueOf(discount));
                 player.sendMessage(TextUtils.colorize(TextUtils.getPrefix() + " " + message));
             } else {
-                String message = CustomArmor.getInstance().getConfigManager().getShopMessage("need-essence-upgrade")
-                    .replace("{accent}", TextUtils.getColor())
+                String message = config.getShopMessage("need-essence-upgrade")
+                    .replace("{accent}", accentColor)
                     .replace("{price}", String.valueOf(finalPrice))
                     .replace("{discount}", String.valueOf(discount));
                 player.sendMessage(TextUtils.colorize(TextUtils.getPrefix() + " " + message));
@@ -161,15 +167,15 @@ public class ArmorGUIListener implements Listener {
             if (playerEssence >= price) {
                 EssenceUtils.removeEssence(player, price);
                 ArmorUtils.giveArmor(player, tier, part);
-                String message = CustomArmor.getInstance().getConfigManager().getShopMessage("purchased")
+                String message = config.getShopMessage("purchased")
                     .replace("{part}", part)
                     .replace("{tier}", String.valueOf(tier))
-                    .replace("{accent}", TextUtils.getColor())
+                    .replace("{accent}", accentColor)
                     .replace("{price}", String.valueOf(price));
                 player.sendMessage(TextUtils.colorize(TextUtils.getPrefix() + " " + message));
             } else {
-                String message = CustomArmor.getInstance().getConfigManager().getShopMessage("need-essence")
-                    .replace("{accent}", TextUtils.getColor())
+                String message = config.getShopMessage("need-essence")
+                    .replace("{accent}", accentColor)
                     .replace("{price}", String.valueOf(price));
                 player.sendMessage(TextUtils.colorize(TextUtils.getPrefix() + " " + message));
             }

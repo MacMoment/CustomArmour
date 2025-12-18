@@ -109,23 +109,102 @@ messages:
     need-essence: '&cYou need {accent}{price}x Armor Essence &cto buy this!'
     need-essence-upgrade: '&cYou need {accent}{price}x Armor Essence &c(&a-{discount} upgrade discount&c)!'
 
-# GUI Settings
+# GUI Settings (54 slots - 6 rows)
+# All slot positions, materials, and text are fully configurable
 gui:
-  title: '&8armor browser &7(Page {page})'
-  stats-item-name: '{accent}{player}''s stats'
-  stats-lore:
-    - ' {accent}&l| &fMultiplier: {accent}{multiplier}x'
-    - ' {accent}&l| &farmor pieces: {accent}{amount}'
-    - ''
-    - '{accent}inventory:'
-    - ' {accent}&l| &fArmor Essence: {accent}{essence}'
+  # GUI size (must be multiple of 9, max 54)
+  size: 54
   
-  armor-lore-addition:
-    - ''
-    - '&fprice: {accent}{price}x Armor Essence'
-    - ''
-    - '&7Click to buy or upgrade!'
+  # GUI title - {tier} and {max_tier} are replaced with current/max tier numbers
+  title: '&8Armor Browser &7(Tier {tier}/{max_tier})'
   
+  # Slot positions for interactive items
+  slots:
+    previous-button: 10
+    next-button: 16
+    tier-info: 13
+    helmet: 29
+    chestplate: 30
+    leggings: 32
+    boots: 33
+    player-stats: 49
+  
+  # Accent decoration slots (uses accent-pane material)
+  accent-slots:
+    - 0
+    - 4
+    - 8
+    - 31
+    - 45
+    - 53
+  
+  # Materials for GUI items
+  materials:
+    border-pane: GRAY_STAINED_GLASS_PANE
+    accent-pane: ORANGE_STAINED_GLASS_PANE
+    tier-info-item: BOOK
+    navigation-arrow: ARROW
+  
+  # Tier info book display
+  tier-info:
+    name: '{hex_color}⚔ {tier_name} &7(Tier {tier})'
+    lore:
+      - ''
+      - '&7This tier provides:'
+      - ' {accent}▸ &f+{multiplier}x &7multiplier per piece'
+      - ' {accent}▸ &f{price} &7essence per piece'
+      - ''
+      - '&7Full set bonus: {accent}+{full_set_bonus}x'
+  
+  # Navigation buttons
   navigation:
-    previous: '&cPrevious Page'
-    next: '&aNext Page'
+    previous:
+      name: '&c◀ Previous Tier'
+      lore:
+        - ''
+        - '&7Go to: {target_hex_color}{target_tier_name}'
+    next:
+      name: '&a▶ Next Tier'
+      lore:
+        - ''
+        - '&7Go to: {target_hex_color}{target_tier_name}'
+  
+  # Player stats display
+  player-stats:
+    name: '{accent}⚡ {player}''s Stats'
+    lore:
+      - ''
+      - '&7Your armor stats:'
+      - ' {accent}▸ &fMultiplier: {accent}{multiplier}x'
+      - ' {accent}▸ &fArmor Pieces: {accent}{armor_count}/4'
+      - ''
+      - '&7Your inventory:'
+      - ' {accent}▸ &fArmor Essence: {accent}{essence}'
+  
+  # Armor piece display settings
+  armor-piece:
+    # Name format for armor pieces - {hex_color}, {tier_name}, {piece_name} are placeholders
+    name-format: '{hex_color}{tier_name} {piece_name}'
+    # Lore added to all armor pieces in the GUI
+    lore:
+      - ''
+      - '{hex_color}Statistics'
+      - '{hex_color}&l┃ &fMultiplier: {hex_color}{multiplier}x'
+      - '{hex_color}&l┃ &fTier: {hex_color}{tier}'
+      - ''
+      - '&8This multiplier is per armor piece'
+      - ''
+      - '&fPrice: {accent}{price}x &fArmor Essence'
+      - ''
+      - '&e▶ Click to buy or upgrade!'
+
+# Essence item settings
+essence:
+  name: '<gradient:#8B00FF:#FF1493>Armor Essence</gradient>'
+  lore:
+    - ''
+    - '{accent}Information'
+    - '{accent}&l┃ &fA crystallized essence of power'
+    - '{accent}&l┃ &fUsed to buy & upgrade armor'
+    - ''
+    - '&7Use in /armor menu'
