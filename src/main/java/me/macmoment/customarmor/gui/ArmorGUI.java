@@ -75,48 +75,6 @@ public class ArmorGUI {
         player.openInventory(inventory);
     }
 
-    /**
-     * Gets the slot position for the previous button from config.
-     */
-    public static int getSlotPrev() {
-        return CustomArmor.getInstance().getConfigManager().getSlotPrevious();
-    }
-
-    /**
-     * Gets the slot position for the next button from config.
-     */
-    public static int getSlotNext() {
-        return CustomArmor.getInstance().getConfigManager().getSlotNext();
-    }
-
-    /**
-     * Gets the slot position for the helmet from config.
-     */
-    public static int getSlotHelmet() {
-        return CustomArmor.getInstance().getConfigManager().getSlotHelmet();
-    }
-
-    /**
-     * Gets the slot position for the chestplate from config.
-     */
-    public static int getSlotChestplate() {
-        return CustomArmor.getInstance().getConfigManager().getSlotChestplate();
-    }
-
-    /**
-     * Gets the slot position for the leggings from config.
-     */
-    public static int getSlotLeggings() {
-        return CustomArmor.getInstance().getConfigManager().getSlotLeggings();
-    }
-
-    /**
-     * Gets the slot position for the boots from config.
-     */
-    public static int getSlotBoots() {
-        return CustomArmor.getInstance().getConfigManager().getSlotBoots();
-    }
-
     // ==================== Inventory Creation ====================
 
     /**

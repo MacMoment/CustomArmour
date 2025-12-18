@@ -150,38 +150,36 @@ public class ConfigManager {
 
     // GUI Materials
     public Material getBorderPaneMaterial() {
-        String material = config.getString("gui.materials.border-pane", "GRAY_STAINED_GLASS_PANE");
-        try {
-            return Material.valueOf(material.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            return Material.GRAY_STAINED_GLASS_PANE;
-        }
+        return parseMaterial(config.getString("gui.materials.border-pane", "GRAY_STAINED_GLASS_PANE"), 
+                            Material.GRAY_STAINED_GLASS_PANE);
     }
 
     public Material getAccentPaneMaterial() {
-        String material = config.getString("gui.materials.accent-pane", "ORANGE_STAINED_GLASS_PANE");
-        try {
-            return Material.valueOf(material.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            return Material.ORANGE_STAINED_GLASS_PANE;
-        }
+        return parseMaterial(config.getString("gui.materials.accent-pane", "ORANGE_STAINED_GLASS_PANE"), 
+                            Material.ORANGE_STAINED_GLASS_PANE);
     }
 
     public Material getTierInfoMaterial() {
-        String material = config.getString("gui.materials.tier-info-item", "BOOK");
-        try {
-            return Material.valueOf(material.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            return Material.BOOK;
-        }
+        return parseMaterial(config.getString("gui.materials.tier-info-item", "BOOK"), 
+                            Material.BOOK);
     }
 
     public Material getNavigationArrowMaterial() {
-        String material = config.getString("gui.materials.navigation-arrow", "ARROW");
+        return parseMaterial(config.getString("gui.materials.navigation-arrow", "ARROW"), 
+                            Material.ARROW);
+    }
+
+    /**
+     * Parses a material name from config, returning a default if invalid.
+     */
+    private Material parseMaterial(String materialName, Material defaultMaterial) {
+        if (materialName == null || materialName.isEmpty()) {
+            return defaultMaterial;
+        }
         try {
-            return Material.valueOf(material.toUpperCase());
+            return Material.valueOf(materialName.toUpperCase());
         } catch (IllegalArgumentException e) {
-            return Material.ARROW;
+            return defaultMaterial;
         }
     }
 
