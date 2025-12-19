@@ -2,6 +2,7 @@ package me.macmoment.customarmor.utils;
 
 import me.macmoment.customarmor.CustomArmor;
 import me.macmoment.customarmor.config.ConfigManager;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -30,20 +31,20 @@ public class EssenceUtils {
         ItemStack essence = new ItemStack(Material.NETHER_STAR, amount);
         ItemMeta meta = essence.getItemMeta();
         
-        // Set name from config (supports MiniMessage gradients)
+        // Set name from config (supports MiniMessage gradients and legacy codes)
         String essenceName = config.getEssenceName();
-        meta.displayName(TextUtils.miniMessage(essenceName));
+        meta.displayName(TextUtils.colorizeToComponent(essenceName));
         
-        // Set lore from config
+        // Set lore from config using Components with italic disabled
         List<String> configLore = config.getEssenceLore();
-        List<String> lore = new ArrayList<>();
+        List<Component> lore = new ArrayList<>();
         String accentColor = config.getAccentColor();
         
         for (String line : configLore) {
             String processedLine = line.replace("{accent}", accentColor);
-            lore.add(TextUtils.colorize(processedLine));
+            lore.add(TextUtils.colorizeToComponent(processedLine));
         }
-        meta.setLore(lore);
+        meta.lore(lore);
         
         // Set custom data
         meta.getPersistentDataContainer().set(ESSENCE_KEY, PersistentDataType.BYTE, (byte) 1);

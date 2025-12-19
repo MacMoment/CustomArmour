@@ -5,6 +5,7 @@ import com.destroystokyo.paper.profile.ProfileProperty;
 import me.macmoment.customarmor.CustomArmor;
 import me.macmoment.customarmor.config.ConfigManager;
 import me.macmoment.customarmor.data.ArmorTier;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -78,9 +79,9 @@ public class ArmorUtils {
                 skullMeta.getPersistentDataContainer().set(TIER_KEY, PersistentDataType.INTEGER, tier.getTier());
                 skullMeta.getPersistentDataContainer().set(MULTI_KEY, PersistentDataType.DOUBLE, tier.getMultiplier());
                 
-                // Set lore - use simplified lore for actual armor items (not GUI display)
-                List<String> skullLore = buildArmorItemLore(tier, config);
-                skullMeta.setLore(skullLore);
+                // Set lore using Components - use simplified lore for actual armor items (not GUI display)
+                List<Component> skullLore = buildArmorItemLore(tier, config);
+                skullMeta.lore(skullLore);
                 
                 item.setItemMeta(skullMeta);
                 break;
@@ -109,18 +110,19 @@ public class ArmorUtils {
 
     /**
      * Builds simplified lore for actual armor items (not GUI display items)
+     * Returns Components with italic disabled by default.
      */
-    private static List<String> buildArmorItemLore(ArmorTier tier, ConfigManager config) {
-        List<String> lore = new ArrayList<>();
+    private static List<Component> buildArmorItemLore(ArmorTier tier, ConfigManager config) {
+        List<Component> lore = new ArrayList<>();
         String accentColor = config.getAccentColor();
         
         // Add basic stats lore without price/click information
-        lore.add("");
-        lore.add(TextUtils.colorize(tier.getHexColor() + "Statistics"));
-        lore.add(TextUtils.colorize(tier.getHexColor() + "&l┃ &fMultiplier: " + tier.getHexColor() + tier.getMultiplier() + "x"));
-        lore.add(TextUtils.colorize(tier.getHexColor() + "&l┃ &fTier: " + tier.getHexColor() + tier.getTier()));
-        lore.add("");
-        lore.add(TextUtils.colorize("&8This multiplier is per armor piece"));
+        lore.add(TextUtils.colorizeToComponent(""));
+        lore.add(TextUtils.colorizeToComponent(tier.getHexColor() + "Statistics"));
+        lore.add(TextUtils.colorizeToComponent(tier.getHexColor() + "&l┃ &fMultiplier: " + tier.getHexColor() + tier.getMultiplier() + "x"));
+        lore.add(TextUtils.colorizeToComponent(tier.getHexColor() + "&l┃ &fTier: " + tier.getHexColor() + tier.getTier()));
+        lore.add(TextUtils.colorizeToComponent(""));
+        lore.add(TextUtils.colorizeToComponent("&8This multiplier is per armor piece"));
         
         return lore;
     }
@@ -145,9 +147,9 @@ public class ArmorUtils {
         meta.getPersistentDataContainer().set(TIER_KEY, PersistentDataType.INTEGER, tier.getTier());
         meta.getPersistentDataContainer().set(MULTI_KEY, PersistentDataType.DOUBLE, tier.getMultiplier());
         
-        // Set lore
-        List<String> lore = buildArmorItemLore(tier, config);
-        meta.setLore(lore);
+        // Set lore using Components
+        List<Component> lore = buildArmorItemLore(tier, config);
+        meta.lore(lore);
         
         item.setItemMeta(meta);
     }
