@@ -120,25 +120,35 @@ public class ArmorGUIListener implements Listener {
         int playerEssence = EssenceUtils.getPlayerEssence(player);
         String accentColor = config.getAccentColor();
         
-        // Check if player has armor piece equipped
+        // Check if player has armor piece (equipped or in inventory)
         boolean hasArmor = false;
         int currentTier = 0;
+        boolean isEquipped = false;
+        int foundSlot = -1; // Slot index where the armor was found
         
-        for (ItemStack armor : player.getInventory().getArmorContents()) {
-            if (armor != null && ArmorUtils.isArmorPiece(armor)) {
-                String armorType = TextUtils.stripColor(
-                    PlainTextComponentSerializer.plainText().serialize(armor.displayName())
-                );
-                
-                boolean matches = false;
-                if (part.equals("head") && armorType.contains("Helmet")) matches = true;
-                if (part.equals("chestplate") && armorType.contains("Chestplate")) matches = true;
-                if (part.equals("leggings") && armorType.contains("Leggings")) matches = true;
-                if (part.equals("boots") && armorType.contains("Boots")) matches = true;
-                
-                if (matches) {
+        // First check equipped armor slots
+        ItemStack[] armorContents = player.getInventory().getArmorContents();
+        for (int i = 0; i < armorContents.length; i++) {
+            ItemStack armor = armorContents[i];
+            if (armor != null && ArmorUtils.isArmorPiece(armor) && matchesArmorPart(armor, part)) {
+                hasArmor = true;
+                currentTier = ArmorUtils.getArmorTier(armor);
+                isEquipped = true;
+                foundSlot = i;
+                break;
+            }
+        }
+        
+        // If not found in equipped slots, check regular inventory
+        if (!hasArmor) {
+            ItemStack[] inventoryContents = player.getInventory().getContents();
+            for (int i = 0; i < inventoryContents.length; i++) {
+                ItemStack item = inventoryContents[i];
+                if (item != null && ArmorUtils.isArmorPiece(item) && matchesArmorPart(item, part)) {
                     hasArmor = true;
-                    currentTier = ArmorUtils.getArmorTier(armor);
+                    currentTier = ArmorUtils.getArmorTier(item);
+                    isEquipped = false;
+                    foundSlot = i;
                     break;
                 }
             }
@@ -162,27 +172,13 @@ public class ArmorGUIListener implements Listener {
             if (playerEssence >= finalPrice) {
                 EssenceUtils.removeEssence(player, finalPrice);
                 
-                // Remove old armor piece
-                ItemStack[] armorContents = player.getInventory().getArmorContents();
-                for (int i = 0; i < armorContents.length; i++) {
-                    ItemStack armor = armorContents[i];
-                    if (armor != null && ArmorUtils.isArmorPiece(armor)) {
-                        String armorType = TextUtils.stripColor(
-                            PlainTextComponentSerializer.plainText().serialize(armor.displayName())
-                        );
-                        
-                        boolean shouldRemove = false;
-                        if (part.equals("head") && armorType.contains("Helmet")) shouldRemove = true;
-                        if (part.equals("chestplate") && armorType.contains("Chestplate")) shouldRemove = true;
-                        if (part.equals("leggings") && armorType.contains("Leggings")) shouldRemove = true;
-                        if (part.equals("boots") && armorType.contains("Boots")) shouldRemove = true;
-                        
-                        if (shouldRemove) {
-                            armorContents[i] = null;
-                            player.getInventory().setArmorContents(armorContents);
-                            break;
-                        }
-                    }
+                // Remove old armor piece from the location it was found
+                if (isEquipped) {
+                    ItemStack[] currentArmorContents = player.getInventory().getArmorContents();
+                    currentArmorContents[foundSlot] = null;
+                    player.getInventory().setArmorContents(currentArmorContents);
+                } else {
+                    player.getInventory().setItem(foundSlot, null);
                 }
                 
                 ArmorUtils.giveArmor(player, tier, part);
@@ -221,5 +217,27 @@ public class ArmorGUIListener implements Listener {
         
         // Refresh GUI
         ArmorGUI.openGUI(player, tier);
+    }
+    
+    /**
+     * Checks if the armor item matches the specified part type
+     */
+    private boolean matchesArmorPart(ItemStack armor, String part) {
+        String armorType = TextUtils.stripColor(
+            PlainTextComponentSerializer.plainText().serialize(armor.displayName())
+        );
+        
+        switch (part) {
+            case "head":
+                return armorType.contains("Helmet");
+            case "chestplate":
+                return armorType.contains("Chestplate");
+            case "leggings":
+                return armorType.contains("Leggings");
+            case "boots":
+                return armorType.contains("Boots");
+            default:
+                return false;
+        }
     }
 }
