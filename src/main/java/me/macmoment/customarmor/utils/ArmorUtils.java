@@ -54,7 +54,13 @@ public class ArmorUtils {
      */
     private static ItemStack createArmorPiece(ArmorTier tier, String part) {
         ItemStack item;
-        String partName = part.substring(0, 1).toUpperCase() + part.substring(1);
+        // Use "Helmet" for head pieces for consistency with GUI display and upgrade checks
+        String partName;
+        if (part.equalsIgnoreCase("head")) {
+            partName = "Helmet";
+        } else {
+            partName = part.substring(0, 1).toUpperCase() + part.substring(1);
+        }
         ConfigManager config = CustomArmor.getInstance().getConfigManager();
 
         switch (part.toLowerCase()) {
